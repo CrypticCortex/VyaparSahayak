@@ -1,0 +1,88 @@
+digraph "VyaparSahayak Distributor - Agentic Engine Architecture" {
+	graph [fontcolor="#2D3436" fontname="Sans-Serif" fontsize=15 label="VyaparSahayak Distributor - Agentic Engine Architecture" nodesep=0.60 pad=2.0 rankdir=TB ranksep=0.75 splines=ortho]
+	node [fixedsize=true fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13 height=1.4 imagescale=true labelloc=b shape=box style=rounded width=1.4]
+	edge [color="#7B8894"]
+	subgraph "cluster_External Systems" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="External Systems" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		b0b3f4ef03a749fda25dc7cc045973bc [label="Distributor Management System" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/database/database.png" shape=none]
+		"69c13f4df0ee49418c07c36d183e37ab" [label="ERP Systems" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/database/database.png" shape=none]
+		"9a2173db51cd443fad4df80a983bffb8" [label="Retailer Systems" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/general/users.png" shape=none]
+		e8aafd72175f423bbd5f3d6887c2ba42 [label="WhatsApp Business API" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/mobile/mobile.png" shape=none]
+		"04e2a33da350448290002e8d8caba5ca" [label="SMS Gateway" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/mobile/mobile.png" shape=none]
+		"03df11df76cb4ed29c02385b017c1ab0" [label="Email Service" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/engagement/simple-email-service-ses.png" shape=none]
+	}
+	subgraph "cluster_API Gateway & Security" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="API Gateway & Security" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		"76f5d163f2614974bf8715d1593e5e17" [label="API Gateway" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/mobile/api-gateway.png" shape=none]
+		"2c4cb35a28b34cf3a8960b024da65383" [label=Authentication height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/security/identity-and-access-management-iam.png" shape=none]
+	}
+	subgraph "cluster_Agentic Engine Core" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="Agentic Engine Core" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		subgraph "cluster_Agent Orchestrator" {
+			graph [bgcolor="#EBF3E7" fontname="Sans-Serif" fontsize=12 label="Agent Orchestrator" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+			"4cb2e32e7f6545fb93c0dd6414a73192" [label="Agent Orchestrator" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/compute/lambda.png" shape=none]
+			"72e526ff40df4585b09d7969a55c47fb" [label="Workflow Engine" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/integration/step-functions.png" shape=none]
+		}
+		subgraph "cluster_Specialized AI Agents" {
+			graph [bgcolor="#EBF3E7" fontname="Sans-Serif" fontsize=12 label="Specialized AI Agents" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+			"87a335df9a6049559ae607b5daee791d" [label="Monitoring Agent" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/compute/lambda.png" shape=none]
+			a146839692a8489eb48c7d20c66d0e49 [label="Analysis Agent" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/compute/lambda.png" shape=none]
+			"93efa8054aee43a88258c378c0984a6a" [label="Reallocation Agent" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/compute/lambda.png" shape=none]
+			d301f9a8730f453d98058b84b73d488c [label="Liquidation Agent" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/compute/lambda.png" shape=none]
+			fafa61ccf76f4cc2b611024b6f274d47 [label="Compliance Agent" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/compute/lambda.png" shape=none]
+		}
+	}
+	subgraph "cluster_Data & Storage Layer" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="Data & Storage Layer" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		bc3bce5ce5bd446183bc2ab17ab71e1b [label="Event Store" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/analytics/kinesis.png" shape=none]
+		a5b73c9aefaa4ca8a5cb4b54f3732571 [label="Time Series DB" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/database/timestream.png" shape=none]
+		"294042ac24694dc49046fc89aa4507d3" [label="Vector DB" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/analytics/elasticsearch-service.png" shape=none]
+		c1da5287df5c42f4886a48d74ab66f8b [label="Redis Cache" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/database/elasticache.png" shape=none]
+		"1f61e0403637495e911aeed15951c6e1" [label="Document Storage" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/storage/simple-storage-service-s3.png" shape=none]
+	}
+	subgraph "cluster_ML/AI Services" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="ML/AI Services" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		"40e90aab19114870b30e787427502806" [label="Prediction Service" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/ml/sagemaker.png" shape=none]
+		"306167c3321f4d85aa5d9ae441bb9c33" [label="Optimization Engine" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/compute/batch.png" shape=none]
+		"7c57a15c1d0e4f229074d32c69ff3169" [label="NLP Service" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/ml/comprehend.png" shape=none]
+		"717041d25aa54af59547a83b366b8c13" [label="Bedrock AI" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/ml/bedrock.png" shape=none]
+	}
+	subgraph "cluster_Monitoring & Compliance" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="Monitoring & Compliance" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		c22a579c1b8143e8908db597b3e76f0d [label="CloudWatch Metrics" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/management/cloudwatch.png" shape=none]
+		"7c108122d1894bdba6c6c3a38f1ede35" [label="Audit Trails" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/management/cloudtrail.png" shape=none]
+		ae171145e1b14496817bbbb385d50e1c [label="Compliance Reports" height=1.9 image="/Users/km/.cache/uv/archive-v0/48o8zrIvWVECD6hlmuW5Q/lib/python3.11/site-packages/resources/aws/management/config.png" shape=none]
+	}
+	b0b3f4ef03a749fda25dc7cc045973bc -> "76f5d163f2614974bf8715d1593e5e17" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"69c13f4df0ee49418c07c36d183e37ab" -> "76f5d163f2614974bf8715d1593e5e17" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"9a2173db51cd443fad4df80a983bffb8" -> "76f5d163f2614974bf8715d1593e5e17" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"76f5d163f2614974bf8715d1593e5e17" -> "2c4cb35a28b34cf3a8960b024da65383" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"2c4cb35a28b34cf3a8960b024da65383" -> "4cb2e32e7f6545fb93c0dd6414a73192" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"4cb2e32e7f6545fb93c0dd6414a73192" -> "72e526ff40df4585b09d7969a55c47fb" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"4cb2e32e7f6545fb93c0dd6414a73192" -> "87a335df9a6049559ae607b5daee791d" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"4cb2e32e7f6545fb93c0dd6414a73192" -> a146839692a8489eb48c7d20c66d0e49 [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"4cb2e32e7f6545fb93c0dd6414a73192" -> "93efa8054aee43a88258c378c0984a6a" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"4cb2e32e7f6545fb93c0dd6414a73192" -> d301f9a8730f453d98058b84b73d488c [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"4cb2e32e7f6545fb93c0dd6414a73192" -> fafa61ccf76f4cc2b611024b6f274d47 [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"87a335df9a6049559ae607b5daee791d" -> bc3bce5ce5bd446183bc2ab17ab71e1b [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	a146839692a8489eb48c7d20c66d0e49 -> "40e90aab19114870b30e787427502806" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"93efa8054aee43a88258c378c0984a6a" -> "306167c3321f4d85aa5d9ae441bb9c33" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	d301f9a8730f453d98058b84b73d488c -> e8aafd72175f423bbd5f3d6887c2ba42 [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	d301f9a8730f453d98058b84b73d488c -> "04e2a33da350448290002e8d8caba5ca" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	d301f9a8730f453d98058b84b73d488c -> "03df11df76cb4ed29c02385b017c1ab0" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	fafa61ccf76f4cc2b611024b6f274d47 -> "7c108122d1894bdba6c6c3a38f1ede35" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	bc3bce5ce5bd446183bc2ab17ab71e1b -> a5b73c9aefaa4ca8a5cb4b54f3732571 [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	a5b73c9aefaa4ca8a5cb4b54f3732571 -> "294042ac24694dc49046fc89aa4507d3" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"40e90aab19114870b30e787427502806" -> "294042ac24694dc49046fc89aa4507d3" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"306167c3321f4d85aa5d9ae441bb9c33" -> c1da5287df5c42f4886a48d74ab66f8b [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	a146839692a8489eb48c7d20c66d0e49 -> "717041d25aa54af59547a83b366b8c13" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	d301f9a8730f453d98058b84b73d488c -> "7c57a15c1d0e4f229074d32c69ff3169" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	fafa61ccf76f4cc2b611024b6f274d47 -> "1f61e0403637495e911aeed15951c6e1" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	d301f9a8730f453d98058b84b73d488c -> "1f61e0403637495e911aeed15951c6e1" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"87a335df9a6049559ae607b5daee791d" -> c22a579c1b8143e8908db597b3e76f0d [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	a146839692a8489eb48c7d20c66d0e49 -> c22a579c1b8143e8908db597b3e76f0d [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"93efa8054aee43a88258c378c0984a6a" -> c22a579c1b8143e8908db597b3e76f0d [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	d301f9a8730f453d98058b84b73d488c -> c22a579c1b8143e8908db597b3e76f0d [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	fafa61ccf76f4cc2b611024b6f274d47 -> c22a579c1b8143e8908db597b3e76f0d [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	fafa61ccf76f4cc2b611024b6f274d47 -> ae171145e1b14496817bbbb385d50e1c [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+}
