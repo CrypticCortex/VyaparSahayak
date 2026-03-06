@@ -14,9 +14,11 @@ interface ZoneGroup {
 
 interface Suggestion {
   id: string;
+  type: string;
   title: string;
   description: string;
   actionType: string;
+  actionPayload: string;
   priority: string;
 }
 
@@ -62,7 +64,12 @@ export function OrdersClient({
       {suggestions.length > 0 && (
         <div className="px-4 space-y-2">
           {suggestions.map((s) => (
-            <SuggestionCard key={s.id} suggestion={s} />
+            <SuggestionCard
+              key={s.id}
+              suggestion={s}
+              onDismiss={() => {}}
+              onAction={() => {}}
+            />
           ))}
         </div>
       )}
