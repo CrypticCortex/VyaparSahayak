@@ -1,0 +1,216 @@
+// src/app/api/recommend/[id]/route.ts
+
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { generateText, generateImage, generateImageGemini } from "@/lib/bedrock";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
+import { invalidateAfterRecommend } from "@/lib/cache";
+import { generateOrderToken } from "@/lib/order-token";
+
+// Language config -- will be user-selectable later
+const LANG = {
+  code: "ta",
+  name: "Tamil",
+  whatsappStyle: "Write the message in Tamil (தமிழ்) script. Use casual spoken Tamil, not formal literary Tamil. Mix in common English words retailers use (like 'stock', 'offer', 'MRP', 'order'). The tone should feel like a friendly distributor texting his retailer on WhatsApp.",
+  posterStyle: "Include Tamil text elements. South Indian retail market aesthetic. Tamil Nadu festive colors.",
+  negativePrompt: "blurry, low quality, distorted text, watermark, dark background, cluttered, realistic photograph, human faces, small text, complex layouts",
+};
+
+export async function POST(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const alert = await prisma.deadStockAlert.findUnique({ where: { id } });
+    if (!alert) {
+      return NextResponse.json({ error: "Alert not found" }, { status: 404 });
+    }
+
+    const mlRec = JSON.parse(alert.recommendationJson || "{}");
+
+    const product = await prisma.product.findUnique({
+      where: { id: alert.productId },
+    });
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    const distributor = await prisma.distributor.findFirst();
+    const discountPct = mlRec.discountPct || 20;
+
+    // Get AI-enhanced recommendation
+    const recPrompt = `You are an AI assistant for Indian FMCG distributors in Tamil Nadu. Given this dead stock situation, provide a detailed recommendation in JSON format.
+
+Dead stock details:
+- Product: ${product.name} (${product.brand})
+- Risk level: ${alert.riskLevel}
+- Dead stock score: ${alert.score}
+- Days since last sale: ${alert.daysSinceLastSale}
+- Weeks of stock cover: ${alert.weeksOfCover.toFixed(1)}
+- Days to expiry: ${alert.daysToExpiry}
+- Stock value: Rs.${Math.round(alert.stockValue).toLocaleString("en-IN")}
+- Zone: ${alert.zoneCode}
+- ML recommendation: ${mlRec.type} - ${mlRec.rationale}
+
+Respond with ONLY valid JSON:
+{
+  "type": "${mlRec.type}",
+  "headline": "short action headline",
+  "detailedRationale": "2-3 sentences explaining why this action",
+  "estimatedRecovery": ${mlRec.estimatedRecovery},
+  "steps": ["step 1", "step 2", "step 3"],
+  "risks": ["risk 1"],
+  "timeframe": "X days"
+}`;
+
+    const response = await generateText(recPrompt);
+    let aiRec;
+    try {
+      aiRec = JSON.parse(response);
+    } catch {
+      aiRec = { ...mlRec, aiResponse: response };
+    }
+
+    // Create Recommendation record
+    const rec = await prisma.recommendation.create({
+      data: {
+        alertId: id,
+        type: aiRec.type || mlRec.type,
+        targetZone: mlRec.targetZone,
+        bundleWith: mlRec.bundleWithName,
+        discountPct: mlRec.discountPct,
+        estimatedRecovery: mlRec.estimatedRecovery,
+        rationale: JSON.stringify(aiRec),
+        status: "approved",
+      },
+    });
+
+    // Update alert status
+    await prisma.deadStockAlert.update({
+      where: { id },
+      data: { status: "approved" },
+    });
+
+    // Generate WhatsApp message in Tamil
+    const whatsappPrompt = `Generate a WhatsApp promotional message for FMCG retailers in Tirunelveli, Tamil Nadu.
+
+${LANG.whatsappStyle}
+
+Product: ${product.name} (${product.brand})
+Category: ${product.category}
+MRP: Rs.${product.mrp}
+Offer: ${discountPct}% OFF
+Campaign type: ${mlRec.type}
+Distributor: ${distributor?.name || "Kalyan Traders"}, Tirunelveli
+
+Requirements:
+- Start with a greeting in Tamil
+- Mention the product name and discount clearly
+- Create urgency (limited stock / expiry approaching)
+- End with "Order now" call-to-action in Tamil
+- Include distributor name and a phone number placeholder
+- Add 2-3 relevant hashtags mixing Tamil and English
+- Keep under 150 words
+- Use WhatsApp-friendly formatting (line breaks, emojis sparingly)
+
+Write ONLY the WhatsApp message, nothing else.`;
+
+    const whatsappMessage = await generateText(whatsappPrompt);
+
+    // Generate poster text in Tamil
+    const headlinePrompt = `Write poster text for an FMCG clearance sale targeting Tamil Nadu retailers.
+
+Product: ${product.name} (${product.brand})
+Discount: ${discountPct}% OFF
+Language: Tamil (தமிழ்)
+
+Write the headline and subline in Tamil script. The offer text can be in English (e.g., "20% OFF").
+
+Respond with ONLY JSON:
+{"headline": "Tamil headline here", "subline": "Tamil subline with product name", "offerText": "${discountPct}% OFF"}`;
+
+    const headlineResponse = await generateText(headlinePrompt);
+    let posterText;
+    try {
+      posterText = JSON.parse(headlineResponse);
+    } catch {
+      posterText = {
+        headline: "சிறப்பு விற்பனை!",
+        subline: product.name,
+        offerText: `${discountPct}% OFF`,
+      };
+    }
+
+    // Generate poster images -- AWS and Gemini in parallel
+    const imagePrompt = `Vibrant South Indian FMCG clearance sale poster, flat graphic design. Saffron orange and indigo blue with white accents. Clean layout for WhatsApp sharing. Stylized colorful ${product.category.toLowerCase()} products on kirana shop shelf. Big discount badge in yellow circle. Green call-to-action banner. ${LANG.posterStyle} Simple composition, max 3 elements, no clutter.`;
+
+    const geminiPrompt = `Professional Indian FMCG kirana store clearance sale promotional poster. Vibrant saffron orange and deep blue color scheme. A well-organized kirana shop shelf displaying colorful packaged ${product.category.toLowerCase()} products. A large bold circular badge showing ${discountPct}% OFF in bright yellow. Clean modern flat design layout optimized for WhatsApp sharing. Green call-to-action banner at the bottom. Festive South Indian retail aesthetic with kolam border decorations. Simple composition, bright and inviting, no human faces.`;
+
+    const postersDir = path.join(process.cwd(), "public", "posters");
+    await mkdir(postersDir, { recursive: true });
+
+    // Run both generators in parallel
+    const [awsResult, geminiResult] = await Promise.allSettled([
+      generateImage(imagePrompt, LANG.negativePrompt),
+      generateImageGemini(geminiPrompt),
+    ]);
+
+    let posterUrl = "";
+    if (awsResult.status === "fulfilled") {
+      const buf = awsResult.value;
+      const ext = buf.toString("utf8", 0, 4) === "<svg" ? "svg" : "png";
+      const filename = `poster-aws-${rec.id}.${ext}`;
+      await writeFile(path.join(postersDir, filename), buf);
+      posterUrl = `/posters/${filename}`;
+    } else {
+      console.error("AWS image generation failed:", awsResult.reason);
+    }
+
+    let posterUrlAlt = "";
+    if (geminiResult.status === "fulfilled") {
+      const filename = `poster-gemini-${rec.id}.png`;
+      await writeFile(path.join(postersDir, filename), geminiResult.value);
+      posterUrlAlt = `/posters/${filename}`;
+    } else {
+      console.error("Gemini image generation failed:", geminiResult.reason);
+    }
+
+    // Generate order token for retailer ordering link
+    const orderToken = generateOrderToken();
+    const baseAppUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
+    const orderUrl = `${baseAppUrl}/order/${orderToken}`;
+    const whatsappMessageWithLink = `${whatsappMessage}\n\nOrder now: ${orderUrl}`;
+
+    // Create Campaign record
+    const campaign = await prisma.campaign.create({
+      data: {
+        recommendationId: rec.id,
+        distributorId: distributor?.id || "",
+        productName: product.name,
+        posterUrl: posterUrl || posterUrlAlt || null,
+        posterUrlAlt: (posterUrl && posterUrlAlt) ? posterUrlAlt : null,
+        posterPrompt: imagePrompt,
+        whatsappMessage: whatsappMessageWithLink,
+        offerHeadline: posterText.headline,
+        offerDetails: JSON.stringify(posterText),
+        orderLink: orderToken,
+        status: "draft",
+      },
+    });
+
+    invalidateAfterRecommend(campaign.id);
+
+    return NextResponse.json({
+      success: true,
+      recommendation: rec,
+      campaignId: campaign.id,
+      ai: aiRec,
+      language: LANG.code,
+    });
+  } catch (error) {
+    console.error("Recommend error:", error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
+  }
+}
