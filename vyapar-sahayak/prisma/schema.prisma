@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Distributor {
+  id                 String   @id @default(cuid())
+  name               String
+  ownerName          String
+  partnerName        String?
+  city               String
+  state              String
+  gstin              String
+  monthlyTurnover    Float
+  deadStockThreshold Int      @default(60)
+  expiryHorizonDays  Int      @default(90)
+  createdAt          DateTime @default(now())
+
+  zones          Zone[]
+  inventory      Inventory[]
+  alerts         DeadStockAlert[]
+  campaigns      Campaign[]
+  whatsappGroups WhatsAppGroup[]
+  orders         Order[]
+  dispatchBatches DispatchBatch[]
+  suggestions    AgentSuggestion[]
+}
+
+model Zone {
+  id              String @id @default(cuid())
+  name            String
+  code            String
+  distributorId   String
+  retailerCount   Int
+  avgOrderValue   Float
+  orderFrequency  Float
+
+  distributor Distributor @relation(fields: [distributorId], references: [id])
+  retailers   Retailer[]
+}
+
+model Retailer {
+  id                  String   @id @default(cuid())
+  name                String
+  ownerName           String
+  zoneId              String
+  type                String
+  town                String
+  whatsappNumber      String
+  creditLimit         Float
+  avgMonthlyPurchase  Float
+  segment             String   @default("silver")
+  createdAt           DateTime @default(now())
+
+  zone         Zone              @relation(fields: [zoneId], references: [id])
+  transactions SalesTransaction[]
+  orders       Order[]
+}
+
+model Product {
+  id            String @id @default(cuid())
+  sku           String @unique
+  name          String
+  brand         String
+  company       String
+  category      String
+  subCategory   String
+  mrp           Float
+  costPrice     Float
+  sellingPrice  Float
+  unitSize      String
+  unitsPerCase  Int
+  shelfLifeDays Int
+
+  inventory    Inventory[]
+  lineItems    SalesLineItem[]
+  orderItems   OrderItem[]
+}
+
+model Inventory {
+  id              String   @id @default(cuid())
+  productId       String
+  distributorId   String
+  zoneCode        String
+  currentStock    Int
+  batchNo         String
+  manufacturingDate DateTime
+  expiryDate      DateTime
+  lastMovementDate DateTime
+  deadStockScore  Float    @default(0)
+  status          String   @default("active")
+
+  product     Product     @relation(fields: [productId], references: [id])
+  distributor Distributor @relation(fields: [distributorId], references: [id])
+}
+
+model SalesTransaction {
+  id          String   @id @default(cuid())
+  date        DateTime
+  retailerId  String
+  invoiceNo   String
+  totalAmount Float
+  paymentStatus String @default("paid")
+
+  retailer  Retailer        @relation(fields: [retailerId], references: [id])
+  lineItems SalesLineItem[]
+}
+
+model SalesLineItem {
+  id            String @id @default(cuid())
+  transactionId String
+  productId     String
+  quantity      Int
+  unitPrice     Float
+  discount      Float  @default(0)
+  total         Float
+
+  transaction SalesTransaction @relation(fields: [transactionId], references: [id])
+  product     Product          @relation(fields: [productId], references: [id])
+}
+
+model DeadStockAlert {
+  id                String   @id @default(cuid())
+  distributorId     String
+  productId         String
+  zoneCode          String
+  score             Float
+  riskLevel         String
+  daysSinceLastSale Int
+  weeksOfCover      Float
+  velocityRatio     Float
+  daysToExpiry      Int
+  stockValue        Float
+  recommendationType String?
+  recommendationJson String?
+  status            String   @default("open")
+  createdAt         DateTime @default(now())
+
+  distributor Distributor @relation(fields: [distributorId], references: [id])
+}
+
+model Recommendation {
+  id                String   @id @default(cuid())
+  alertId           String
+  type              String
+  targetZone        String?
+  bundleWith        String?
+  discountPct       Float?
+  estimatedRecovery Float
+  rationale         String?
+  status            String   @default("pending")
+  createdAt         DateTime @default(now())
+
+  campaign Campaign?
+}
+
+model Campaign {
+  id               String   @id @default(cuid())
+  recommendationId String   @unique
+  distributorId    String
+  productName      String
+  posterUrl        String?
+  posterUrlAlt     String?
+  posterPrompt     String?
+  whatsappMessage  String?
+  offerHeadline    String?
+  offerDetails     String?
+  targetGroups     String?
+  orderLink        String?
+  status           String   @default("draft")
+  sentAt           DateTime?
+  createdAt        DateTime @default(now())
+
+  recommendation Recommendation @relation(fields: [recommendationId], references: [id])
+  distributor    Distributor    @relation(fields: [distributorId], references: [id])
+  orders         Order[]
+}
+
+model WhatsAppGroup {
+  id              String   @id @default(cuid())
+  distributorId   String
+  zoneId          String?
+  name            String
+  type            String   @default("zone_retailers")
+  inviteLink      String?
+  memberCount     Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  distributor Distributor @relation(fields: [distributorId], references: [id])
+}
+
+// -- New models for distribution management system --
+
+model Order {
+  id            String    @id @default(cuid())
+  token         String    @unique
+  retailerId    String
+  distributorId String
+  status        String    @default("pending")
+  totalAmount   Float
+  notes         String?
+  campaignId    String?
+  zoneCode      String
+  createdAt     DateTime  @default(now())
+  confirmedAt   DateTime?
+  dispatchedAt  DateTime?
+  deliveredAt   DateTime?
+
+  retailer    Retailer          @relation(fields: [retailerId], references: [id])
+  distributor Distributor       @relation(fields: [distributorId], references: [id])
+  campaign    Campaign?         @relation(fields: [campaignId], references: [id])
+  items       OrderItem[]
+  batchLinks  DispatchBatchOrder[]
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Float
+  discount  Float  @default(0)
+  total     Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model DispatchBatch {
+  id            String    @id @default(cuid())
+  distributorId String
+  zoneCode      String
+  status        String    @default("planned")
+  vehicleInfo   String?
+  plannedDate   DateTime
+  dispatchedAt  DateTime?
+  notes         String?
+  createdAt     DateTime  @default(now())
+
+  distributor Distributor        @relation(fields: [distributorId], references: [id])
+  orders      DispatchBatchOrder[]
+}
+
+model DispatchBatchOrder {
+  id      String @id @default(cuid())
+  batchId String
+  orderId String
+
+  batch DispatchBatch @relation(fields: [batchId], references: [id])
+  order Order         @relation(fields: [orderId], references: [id])
+}
+
+model AgentSuggestion {
+  id            String    @id @default(cuid())
+  distributorId String
+  type          String
+  title         String
+  description   String
+  actionType    String
+  actionPayload String
+  priority      String    @default("medium")
+  status        String    @default("pending")
+  createdAt     DateTime  @default(now())
+  actedAt       DateTime?
+
+  distributor Distributor @relation(fields: [distributorId], references: [id])
+}
