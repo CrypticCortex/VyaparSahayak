@@ -67,9 +67,11 @@ export default async function OrdersPage() {
       todayValue={todayValue}
       suggestions={suggestions.map((s) => ({
         id: s.id,
+        type: s.type,
         title: s.title,
         description: s.description,
         actionType: s.actionType,
+        actionPayload: s.actionPayload,
         priority: s.priority,
       }))}
     />
