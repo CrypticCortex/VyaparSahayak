@@ -1,6 +1,7 @@
 // src/app/api/seed/route.ts
 
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { DISTRIBUTOR, ZONES, PRODUCTS, RETAILER_NAMES } from "@/lib/seed/data";
 import { generateSalesHistory, generateInventory } from "@/lib/seed/generate";
@@ -210,7 +211,6 @@ export async function POST() {
       { zone: "TN-NAN", rIdx: 0, status: "confirmed", skus: [allProductSkus[2], allProductSkus[7]], hoursAgo: 12 },
       { zone: "TN-NAN", rIdx: 2, status: "pending", skus: [allProductSkus[0]], hoursAgo: 3 },
       { zone: "TN-AMB", rIdx: 0, status: "pending", skus: [allProductSkus[3], allProductSkus[4]], hoursAgo: 8 },
-      { zone: "TN-CHE", rIdx: 1, status: "pending", skus: [allProductSkus[5]], hoursAgo: 1 },
     ];
 
     const dispatchedOrderIds: string[] = [];
@@ -275,39 +275,135 @@ export async function POST() {
       batchCount = 1;
     }
 
+    // Run dead stock detection inline to populate alerts
+    const { extractFeatures } = await import("@/lib/ml/features");
+    const { scoreDeadStock } = await import("@/lib/ml/scoring");
+    const { generateRecommendation } = await import("@/lib/ml/recommendations");
+
+    const features = await extractFeatures(dist.id);
+    const scored = scoreDeadStock(features);
+    const atRisk = scored.filter((s) => s.riskLevel === "high" || s.riskLevel === "medium");
+
+    const alertIds: string[] = [];
+    for (const sku of atRisk) {
+      const rec = generateRecommendation(sku, scored);
+      const alert = await prisma.deadStockAlert.create({
+        data: {
+          distributorId: dist.id,
+          productId: sku.productId,
+          zoneCode: sku.zoneCode,
+          score: sku.deadStockScore,
+          riskLevel: sku.riskLevel,
+          daysSinceLastSale: sku.daysSinceLastSale,
+          weeksOfCover: sku.weeksOfCover,
+          velocityRatio: sku.velocityRatio,
+          daysToExpiry: sku.daysToExpiry,
+          stockValue: sku.currentStockValue,
+          recommendationType: rec.type,
+          recommendationJson: JSON.stringify(rec),
+        },
+      });
+      alertIds.push(alert.id);
+    }
+
+    // Create demo recommendations and campaigns for top 3 alerts
+    const campaignProducts = [
+      { alertIdx: 0, headline: "சிறப்பு விற்பனை!", message: "வணக்கம்! 🙏\n\nKalyan Traders-ல் இருந்து சிறப்பு offer!\n\n20% OFF - Limited stock!\n\nஉடனே order செய்யுங்கள்! 📞 98765 43210\n\n#KalyanTraders #SpecialOffer #Tirunelveli" },
+      { alertIdx: 2, headline: "அதிரடி தள்ளுபடி!", message: "வணக்கம்! 🙏\n\nKalyan Traders special clearance!\n\n25% OFF on selected items!\n\nStock limited - order today!\n📞 98765 43210\n\n#ClearanceSale #KalyanTraders" },
+      { alertIdx: 4, headline: "மெகா சேல்!", message: "நமஸ்காரம்! 🙏\n\nMega sale at Kalyan Traders!\n\n15% OFF - இன்றே order செய்யுங்கள்!\n\n📞 98765 43210\n\n#MegaSale #Tirunelveli" },
+    ];
+
+    for (const cp of campaignProducts) {
+      if (cp.alertIdx >= alertIds.length) continue;
+      const alertId = alertIds[cp.alertIdx];
+      const alertData = atRisk[cp.alertIdx];
+      const mlRec = generateRecommendation(alertData, scored);
+
+      const rec = await prisma.recommendation.create({
+        data: {
+          alertId,
+          type: mlRec.type,
+          targetZone: mlRec.targetZone,
+          bundleWith: mlRec.bundleWithName,
+          discountPct: mlRec.discountPct || 20,
+          estimatedRecovery: mlRec.estimatedRecovery,
+          rationale: JSON.stringify(mlRec),
+          status: "approved",
+        },
+      });
+
+      await prisma.deadStockAlert.update({
+        where: { id: alertId },
+        data: { status: "approved" },
+      });
+
+      const statusChoice = cp.alertIdx === 0 ? "sent" : "draft";
+      await prisma.campaign.create({
+        data: {
+          recommendationId: rec.id,
+          distributorId: dist.id,
+          productName: alertData.productName,
+          posterUrl: null,
+          whatsappMessage: cp.message,
+          offerHeadline: cp.headline,
+          offerDetails: JSON.stringify({ headline: cp.headline }),
+          orderLink: generateOrderToken(100 + cp.alertIdx),
+          status: statusChoice,
+          sentAt: statusChoice === "sent" ? subDays(today, 3) : undefined,
+          targetGroups: ZONES.slice(0, 3).map(z => z.name).join(","),
+        },
+      });
+    }
+
     // Seed agent suggestions
     const suggestions = [
       {
         type: "order_intelligence",
-        title: "8 orders in TN-URB ready to batch",
-        description: "You have 4 orders from Urban Tirunelveli today worth Rs.12.5K total. Create a dispatch batch to send them together?",
+        title: "6 orders in TN-URB ready to batch",
+        description: "You have 4 orders from Urban Tirunelveli today worth Rs.8.5K total. Create a dispatch batch to send them together?",
         actionType: "create_batch",
         actionPayload: JSON.stringify({ zoneCode: "TN-URB" }),
         priority: "high",
       },
       {
         type: "stock_rebalance",
-        title: "Move Complan stock from TN-CHE to TN-URB",
-        description: "Complan NutriGro has 40 cases idle in Cheranmahadevi but Urban Tirunelveli sold 15 cases last week. Transfer 20 cases?",
+        title: "Move Complan stock from TN-AMB to TN-URB",
+        description: "Complan NutriGro has 30 cases idle in Ambasamudram but Urban Tirunelveli sold 12 cases last week. Transfer 15 cases?",
         actionType: "transfer_stock",
-        actionPayload: JSON.stringify({ productSku: "COMPLAN-NG-500", fromZone: "TN-CHE", toZone: "TN-URB", quantity: 20 }),
+        actionPayload: JSON.stringify({ productSku: "BEV-CNG-500", fromZone: "TN-AMB", toZone: "TN-URB", quantity: 15 }),
         priority: "medium",
       },
       {
-        type: "campaign_performance",
-        title: "Arun Badam campaign needs a reminder",
-        description: "Your Arun Badam 1L campaign reached 120 retailers 3 days ago -- 8 orders so far (6.7% conversion). Send a reminder to the other 112?",
-        actionType: "send_reminder",
-        actionPayload: JSON.stringify({ campaignProduct: "Arun Badam 1L" }),
-        priority: "medium",
+        type: "stock_rebalance",
+        title: "Lays batch expires in 18 days",
+        description: "45 cases of Lays Classic in TN-NAN expire soon. Push a flash sale to Nanguneri retailers before they're written off?",
+        actionType: "flash_sale",
+        actionPayload: JSON.stringify({ productSku: "SNK-LAY-030", zoneCode: "TN-NAN" }),
+        priority: "high",
       },
       {
         type: "order_intelligence",
-        title: "Murugan Stores hasn't ordered in 18 days",
-        description: "Murugan Stores in TN-NAN usually orders weekly but last order was 18 days ago. Send a check-in message on WhatsApp?",
+        title: "Marie Gold running low in TN-URB",
+        description: "Britannia Marie Gold has only 2 days of stock left in Urban Tirunelveli. Reorder 10 cases to avoid stockout?",
+        actionType: "reorder",
+        actionPayload: JSON.stringify({ productSku: "BIS-MAR-250", zoneCode: "TN-URB", quantity: 10 }),
+        priority: "high",
+      },
+      {
+        type: "order_intelligence",
+        title: "Selvam Stores hasn't ordered in 18 days",
+        description: "Selvam Stores in Nanguneri usually orders weekly but last order was 18 days ago. Send a check-in message on WhatsApp?",
         actionType: "send_checkin",
-        actionPayload: JSON.stringify({ retailerName: "Murugan Stores", zoneCode: "TN-NAN" }),
+        actionPayload: JSON.stringify({ retailerName: "Selvam Stores", zoneCode: "TN-NAN" }),
         priority: "low",
+      },
+      {
+        type: "campaign_performance",
+        title: "Fortune Oil clearance: 12% conversion so far",
+        description: "Your Fortune Sunflower Oil clearance campaign reached 20 retailers 3 days ago -- 3 orders so far. Send a reminder to boost conversion?",
+        actionType: "send_reminder",
+        actionPayload: JSON.stringify({ campaignProduct: "Fortune Sunflower Oil 1L" }),
+        priority: "medium",
       },
     ];
 
@@ -333,12 +429,57 @@ export async function POST() {
         dispatched: orderSpecs.filter((o) => o.status === "dispatched").length,
       },
       dispatchBatches: batchCount,
+      deadStockAlerts: atRisk.length,
+      deadStockValue: Math.round(atRisk.reduce((s, a) => s + a.currentStockValue, 0)),
+      campaigns: campaignProducts.length,
       agentSuggestions: suggestions.length,
     };
+
+    // Bust Next.js cache so pages pick up new IDs
+    revalidatePath("/demo", "layout");
 
     return NextResponse.json({ success: true, stats });
   } catch (error) {
     console.error("Seed error:", error);
+    return NextResponse.json(
+      { success: false, error: String(error) },
+      { status: 500 }
+    );
+  }
+}
+
+
+// DELETE: clear all data without re-seeding (for demo reset)
+export async function DELETE() {
+  try {
+    await prisma.dispatchBatchOrder.deleteMany();
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.dispatchBatch.deleteMany();
+    await prisma.agentSuggestion.deleteMany();
+    await prisma.campaign.deleteMany();
+    await prisma.recommendation.deleteMany();
+    await prisma.deadStockAlert.deleteMany();
+    await prisma.inventory.deleteMany();
+    await prisma.salesLineItem.deleteMany();
+    await prisma.salesTransaction.deleteMany();
+    await prisma.whatsAppGroup.deleteMany();
+    await prisma.retailer.deleteMany();
+    await prisma.zone.deleteMany();
+    await prisma.product.deleteMany();
+    await prisma.distributor.deleteMany();
+
+    // Bust both unstable_cache tags and page cache
+    const { revalidateTag } = await import("next/cache");
+    revalidateTag("dashboard", "max");
+    revalidateTag("alerts", "max");
+    revalidateTag("campaigns", "max");
+    revalidateTag("network", "max");
+    revalidatePath("/demo", "layout");
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Reset error:", error);
     return NextResponse.json(
       { success: false, error: String(error) },
       { status: 500 }

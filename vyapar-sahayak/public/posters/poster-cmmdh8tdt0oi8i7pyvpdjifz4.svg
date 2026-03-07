@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+    <defs>
+      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#FF6B00"/>
+        <stop offset="100%" style="stop-color:#E65100"/>
+      </linearGradient>
+    </defs>
+    <rect width="1024" height="1024" fill="url(#bg)" rx="24"/>
+    <rect x="40" y="40" width="944" height="944" fill="none" stroke="white" stroke-width="4" stroke-dasharray="20,10" rx="16" opacity="0.3"/>
+    <text x="512" y="200" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="80" fill="white" font-weight="900">MEGA SALE!</text>
+    <text x="512" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" fill="white" opacity="0.9">Limited Period Offer</text>
+    <circle cx="512" cy="500" r="160" fill="white" opacity="0.15"/>
+    <text x="512" y="480" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="100" fill="white" font-weight="900">20%</text>
+    <text x="512" y="560" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="60" fill="#FFE082" font-weight="900">OFF</text>
+    <rect x="200" y="700" width="624" height="80" fill="white" rx="40" opacity="0.95"/>
+    <text x="512" y="752" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" fill="#E65100" font-weight="700">Order Now - Limited Stock!</text>
+    <text x="512" y="880" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="white" opacity="0.8">Kalyan Traders | WhatsApp: +91 98765 43210</text>
+    <text x="512" y="940" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="white" opacity="0.5">Demo Poster - AI Generated in Production</text>
+  </svg>

@@ -182,7 +182,7 @@ export const generateRecommendationTool = tool({
     alert_id: z.string().describe("The alert ID to generate a recommendation for"),
   }),
   callback: async (input) => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const res = await fetch(`${baseUrl}/api/recommend/${input.alert_id}`, { method: "POST" });
     const data = await res.json();
 

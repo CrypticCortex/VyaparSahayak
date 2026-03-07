@@ -179,7 +179,7 @@ Respond with ONLY JSON:
 
     // Generate order token for retailer ordering link
     const orderToken = generateOrderToken();
-    const baseAppUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
+    const baseAppUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const orderUrl = `${baseAppUrl}/order/${orderToken}`;
     const whatsappMessageWithLink = `${whatsappMessage}\n\nOrder now: ${orderUrl}`;
 

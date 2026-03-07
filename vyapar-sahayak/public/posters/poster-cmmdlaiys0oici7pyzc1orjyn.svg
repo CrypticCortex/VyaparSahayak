@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+    <defs>
+      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#FF6B00"/>
+        <stop offset="50%" style="stop-color:#E65100"/>
+        <stop offset="100%" style="stop-color:#BF360C"/>
+      </linearGradient>
+      <linearGradient id="banner" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#1A237E"/>
+        <stop offset="100%" style="stop-color:#283593"/>
+      </linearGradient>
+    </defs>
+    <rect width="1024" height="1024" fill="url(#bg)" rx="24"/>
+    <rect x="0" y="0" width="1024" height="120" fill="url(#banner)"/>
+    <text x="512" y="80" text-anchor="middle" font-family="sans-serif" font-size="48" fill="white" font-weight="700">Kalyan Traders - Tirunelveli</text>
+    <rect x="40" y="140" width="944" height="844" fill="none" stroke="white" stroke-width="3" stroke-dasharray="15,8" rx="16" opacity="0.25"/>
+    <text x="512" y="250" text-anchor="middle" font-family="sans-serif" font-size="72" fill="white" font-weight="900">சிறப்பு விற்பனை!</text>
+    <text x="512" y="330" text-anchor="middle" font-family="sans-serif" font-size="36" fill="#FFE082" opacity="0.95">Special Clearance Sale</text>
+    <circle cx="512" cy="530" r="150" fill="white" opacity="0.15"/>
+    <circle cx="512" cy="530" r="120" fill="white" opacity="0.1"/>
+    <text x="512" y="510" text-anchor="middle" font-family="sans-serif" font-size="110" fill="white" font-weight="900">20%</text>
+    <text x="512" y="590" text-anchor="middle" font-family="sans-serif" font-size="56" fill="#FFE082" font-weight="900">OFF</text>
+    <rect x="160" y="720" width="704" height="80" fill="white" rx="40" opacity="0.95"/>
+    <text x="512" y="773" text-anchor="middle" font-family="sans-serif" font-size="34" fill="#E65100" font-weight="700">உடனே ஆர்டர் செய்யுங்கள்!</text>
+    <text x="512" y="870" text-anchor="middle" font-family="sans-serif" font-size="28" fill="white" opacity="0.85">Stock குறைவு - Limited Period Only</text>
+    <text x="512" y="920" text-anchor="middle" font-family="sans-serif" font-size="26" fill="white" opacity="0.7">WhatsApp: +91 98765 43210</text>
+    <text x="512" y="970" text-anchor="middle" font-family="sans-serif" font-size="18" fill="white" opacity="0.4">Demo Poster - AI Generated in Production</text>
+  </svg>
