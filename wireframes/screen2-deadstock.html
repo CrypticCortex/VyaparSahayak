@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0">
+<title>VyaparSahayak - Dead Stock Detail</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #F5F5F5;
+    width: 375px;
+    min-height: 812px;
+    margin: 0 auto;
+    color: #1A1A1A;
+    overflow-x: hidden;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 20px;
+    font-size: 12px; font-weight: 600;
+    background: #fff;
+  }
+
+  /* Top Nav */
+  .top-nav {
+    background: #fff;
+    padding: 12px 20px 14px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid #E8E8E8;
+  }
+  .back-btn {
+    font-size: 18px; color: #333; text-decoration: none;
+    width: 32px; height: 32px; display: flex; align-items: center;
+    justify-content: center; border-radius: 8px; background: #F5F5F5;
+  }
+  .page-title { font-size: 17px; font-weight: 700; color: #1A1A1A; }
+  .item-count {
+    font-size: 12px; font-weight: 600; color: #E53935;
+    background: #FFEBEE; border-radius: 12px; padding: 2px 10px;
+    margin-left: auto;
+  }
+
+  /* Filter Bar */
+  .filter-bar {
+    display: flex; gap: 8px; padding: 12px 20px;
+    overflow-x: auto; background: #fff;
+    border-bottom: 1px solid #F0F0F0;
+  }
+  .filter-chip {
+    flex-shrink: 0; font-size: 11px; font-weight: 600;
+    padding: 6px 14px; border-radius: 20px;
+    border: 1px solid #D0D0D0; color: #666; background: #fff;
+  }
+  .filter-chip.active {
+    background: #1A237E; color: #fff; border-color: #1A237E;
+  }
+
+  /* Section Header */
+  .section-header {
+    padding: 16px 20px 8px;
+    font-size: 13px; font-weight: 700; color: #333;
+  }
+
+  /* Product Card */
+  .product-card {
+    margin: 0 20px 12px;
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #E8E8E8;
+    overflow: hidden;
+  }
+  .product-main {
+    display: flex; gap: 14px; padding: 16px;
+  }
+  .product-img {
+    width: 64px; height: 64px; border-radius: 10px;
+    background: #F0F0F0; border: 1px solid #E0E0E0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #AAA; text-align: center;
+    flex-shrink: 0;
+  }
+  .product-info { flex: 1; }
+  .product-name {
+    font-size: 14px; font-weight: 700; color: #1A1A1A;
+    margin-bottom: 6px;
+  }
+  .product-meta {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+  .meta-item {
+    font-size: 11px; color: #777;
+  }
+  .meta-value {
+    font-weight: 700; color: #333;
+  }
+
+  /* Risk Badge */
+  .risk-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin: 0 16px; padding: 5px 12px;
+    border-radius: 8px; font-size: 11px; font-weight: 700;
+  }
+  .risk-badge.high {
+    background: #FFEBEE; color: #C62828;
+    border: 1px solid #FFCDD2;
+  }
+  .risk-badge.medium {
+    background: #FFF8E1; color: #E65100;
+    border: 1px solid #FFE082;
+  }
+  .risk-badge.low {
+    background: #E8F5E9; color: #2E7D32;
+    border: 1px solid #C8E6C9;
+  }
+
+  /* AI Suggestion */
+  .ai-suggestion {
+    margin: 10px 16px 16px;
+    background: #F3F0FF;
+    border: 1px solid #D1C4E9;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .ai-icon {
+    font-size: 14px; flex-shrink: 0; margin-top: 1px;
+  }
+  .ai-text {
+    font-size: 12px; color: #4527A0; line-height: 1.4;
+  }
+  .ai-text strong { font-weight: 700; }
+  .ai-recovery {
+    font-size: 11px; font-weight: 700; color: #2E7D32;
+    margin-top: 4px;
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 375px; background: #fff;
+    border-top: 1px solid #E0E0E0;
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 6px 0 24px;
+    z-index: 100;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    text-decoration: none; position: relative;
+  }
+  .nav-icon { font-size: 20px; color: #999; }
+  .nav-label { font-size: 10px; color: #999; font-weight: 500; }
+  .nav-item.active .nav-icon { color: #1A237E; }
+  .nav-item.active .nav-label { color: #1A237E; font-weight: 700; }
+  .fab {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: #1A237E; color: #fff; font-size: 28px;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: -20px; box-shadow: 0 4px 12px rgba(26,35,126,0.3);
+  }
+  .fab-label { margin-top: -2px; }
+
+  .spacer { height: 80px; }
+</style>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+<div class="status-bar">
+  <span>2:45 PM</span>
+  <div><span style="font-size:11px">&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+</div>
+
+<div class="top-nav">
+  <a class="back-btn" href="#">&#8592;</a>
+  <span class="page-title">High-Risk Items</span>
+  <span class="item-count">12 items</span>
+</div>
+
+<div class="filter-bar">
+  <span class="filter-chip active">All</span>
+  <span class="filter-chip">Near Expiry</span>
+  <span class="filter-chip">Slow Moving</span>
+  <span class="filter-chip">Excess</span>
+  <span class="filter-chip">Returns</span>
+</div>
+
+<div class="section-header">Dead Stock Detail</div>
+
+<!-- Card 1 -->
+<div class="product-card">
+  <div class="product-main">
+    <div class="product-img">Product<br>Image</div>
+    <div class="product-info">
+      <div class="product-name">Badam Drink Mix 200ml</div>
+      <div class="product-meta">
+        <div class="meta-item">Value: <span class="meta-value">&#8377;1,482 pcs</span></div>
+        <div class="meta-item">Dass Lakh</div>
+        <div class="meta-item">Days idle: <span class="meta-value">112</span></div>
+        <div class="meta-item">Expiry: <span class="meta-value" style="color:#C62828;">45 days left</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="risk-badge high">&#9888; High Risk</div>
+  <div class="ai-suggestion">
+    <span class="ai-icon">&#10024;</span>
+    <div>
+      <div class="ai-text"><strong>AI Suggestion:</strong> Reallocate to Rural Zone B</div>
+      <div class="ai-recovery">Est. recovery &#8377;1.4 Lakh</div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 2 -->
+<div class="product-card">
+  <div class="product-main">
+    <div class="product-img">Product<br>Image</div>
+    <div class="product-info">
+      <div class="product-name">Health Drink Powder 500g</div>
+      <div class="product-meta">
+        <div class="meta-item">Value: <span class="meta-value">&#8377;1,192 pcs</span></div>
+        <div class="meta-item">Dass Lakh</div>
+        <div class="meta-item">Days idle: <span class="meta-value">94</span></div>
+        <div class="meta-item">Expiry: <span class="meta-value" style="color:#E65100;">78 days left</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="risk-badge medium">&#9888; Medium Risk</div>
+  <div class="ai-suggestion">
+    <span class="ai-icon">&#10024;</span>
+    <div>
+      <div class="ai-text"><strong>AI Suggestion:</strong> Bundle with fast-mover combo</div>
+      <div class="ai-recovery">Est. recovery &#8377;0.9 Lakh</div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 3 -->
+<div class="product-card">
+  <div class="product-main">
+    <div class="product-img">Product<br>Image</div>
+    <div class="product-info">
+      <div class="product-name">Badam Drink Mix 1L</div>
+      <div class="product-meta">
+        <div class="meta-item">Value: <span class="meta-value">&#8377;1,920 pcs</span></div>
+        <div class="meta-item">Dass Lakh</div>
+        <div class="meta-item">Days idle: <span class="meta-value">87</span></div>
+        <div class="meta-item">Expiry: <span class="meta-value">120 days left</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="risk-badge low">&#9679; Watch</div>
+  <div class="ai-suggestion">
+    <span class="ai-icon">&#10024;</span>
+    <div>
+      <div class="ai-text"><strong>AI Suggestion:</strong> Hyperlocal offer for Zone A retailers</div>
+      <div class="ai-recovery">Est. recovery &#8377;1.4 Lakh</div>
+    </div>
+  </div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <a class="nav-item" href="#">
+    <span class="nav-icon">&#127968;</span>
+    <span class="nav-label">Home</span>
+  </a>
+  <a class="nav-item active" href="#">
+    <span class="nav-icon">&#9888;</span>
+    <span class="nav-label">Alerts</span>
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">&#128226;</span>
+    <span class="nav-label">Campaigns</span>
+  </a>
+  <div class="nav-item">
+    <div class="fab">+</div>
+    <span class="nav-label fab-label">New Action</span>
+  </div>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">&#128260;</span>
+    <span class="nav-label">Returns</span>
+  </a>
+</div>
+
+</body>
+</html>

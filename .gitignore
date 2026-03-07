@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+package-lock.json
+
+# environment
+.env
+.env.*
+
+# os
+.DS_Store
+
+# screenshots and media (playwright captures, demo recordings)
+screenshots/
+*.png
+
+# playwright mcp
+.playwright-mcp/
+
+# storage (crawlee, local caches)
+storage/
+
+# next.js
+.next/
+*.tsbuildinfo
+
+# database
+*.db
+*.db-journal
+
+# generated
+generated-diagrams/

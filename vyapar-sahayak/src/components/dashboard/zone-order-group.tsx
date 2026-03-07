@@ -37,6 +37,7 @@ export function ZoneOrderGroup({
   const [creatingBatch, setCreatingBatch] = useState(false);
 
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
+  const pendingCount = orders.filter((o) => o.status === "pending").length;
 
   function handleStatusChange(orderId: string, newStatus: string) {
     setOrders((prev) =>
@@ -74,24 +75,41 @@ export function ZoneOrderGroup({
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="border border-white/[0.06] rounded-2xl overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3.5 bg-gradient-to-r from-white/[0.02] to-white/[0.03] hover:from-white/[0.04] hover:to-white/[0.05] transition-all"
       >
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm text-gray-900">{zoneName}</span>
-          <span className="text-xs text-gray-500 bg-white px-2 py-0.5 rounded-full">
-            {orders.length} orders
-          </span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-[#FF9933]/15 flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF9933" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+          </div>
+          <div className="text-left">
+            <span className="font-bold text-sm text-white">{zoneName}</span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-[10px] font-semibold text-[#8892A8]/70 uppercase">{zoneCode}</span>
+              <span className="text-[10px] text-[#8892A8]/70">*</span>
+              <span className="text-[10px] font-medium text-[#8892A8]">
+                {orders.length} orders
+              </span>
+              {pendingCount > 0 && (
+                <span className="text-[10px] font-bold text-[#FF9933] bg-[#FF9933]/15 px-1.5 py-0.5 rounded-full">
+                  {pendingCount} pending
+                </span>
+              )}
+            </div>
+          </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-bold text-white">
             Rs.{Math.round(totalValue).toLocaleString("en-IN")}
           </span>
           <svg
-            className={`w-4 h-4 text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+            className={`w-4 h-4 text-[#8892A8] transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
@@ -99,7 +117,7 @@ export function ZoneOrderGroup({
       </button>
 
       {expanded && (
-        <div className="p-3 space-y-2">
+        <div className="p-3 space-y-2.5 border-t border-white/[0.06] bg-white/[0.02]">
           {orders.map((order) => (
             <OrderCard
               key={order.id}
@@ -112,7 +130,7 @@ export function ZoneOrderGroup({
             <button
               onClick={handleCreateBatch}
               disabled={creatingBatch}
-              className="w-full py-2 text-sm font-medium text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 disabled:opacity-50 mt-2"
+              className="w-full py-2.5 text-sm font-bold text-white bg-[#FF9933] rounded-xl hover:bg-[#FF9933]/80 active:scale-[0.99] disabled:opacity-50 transition-all mt-1"
             >
               {creatingBatch
                 ? "Creating batch..."

@@ -116,8 +116,9 @@ export async function POST(req: Request) {
     // Invoke the agent (handles the tool-use loop internally)
     const result = await agent.invoke(lastUserMessage);
 
-    // Extract reply text
-    const reply = result.toString() || "I processed your request but have nothing to add.";
+    // Extract reply text, strip any leaked thinking tags
+    const rawReply = result.toString() || "I processed your request but have nothing to add.";
+    const reply = rawReply.replace(/<thinking>[\s\S]*?<\/thinking>\s*/g, "").trim();
 
     // Collect campaign IDs and suggestions from the agent's conversation history
     const seenCampaignIds = new Set<string>();

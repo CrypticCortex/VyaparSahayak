@@ -31,13 +31,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Product not found" }, { status: 400 });
     }
 
-    // Try to match retailer by phone
+    // Try to match retailer by phone, fall back to any retailer under this distributor
     let retailer = null;
     if (retailerPhone) {
       retailer = await prisma.retailer.findFirst({
         where: { whatsappNumber: retailerPhone },
         include: { zone: { select: { code: true } } },
       });
+    }
+    if (!retailer) {
+      retailer = await prisma.retailer.findFirst({
+        where: { zone: { distributorId: campaign.distributorId } },
+        include: { zone: { select: { code: true } } },
+      });
+    }
+    if (!retailer) {
+      return NextResponse.json({ error: "No retailers found" }, { status: 400 });
     }
 
     const discountPct = campaign.recommendation?.discountPct || 20;
@@ -56,12 +65,12 @@ export async function POST(req: Request) {
     const order = await prisma.order.create({
       data: {
         token: generateOrderToken(),
-        retailerId: retailer?.id || "",
+        retailerId: retailer.id,
         distributorId: campaign.distributorId,
         status: "pending",
         totalAmount: total,
         campaignId: campaign.id,
-        zoneCode: retailer?.zone?.code || "UNKNOWN",
+        zoneCode: retailer.zone?.code || "UNKNOWN",
         notes: notes || (retailerName ? `Retailer: ${retailerName}` : null),
       },
     });

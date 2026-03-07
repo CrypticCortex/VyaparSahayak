@@ -1,81 +1,113 @@
 import { getCachedDistributor, getCachedDashboardData } from "@/lib/cache";
+import { prisma } from "@/lib/db";
+import { HeroCards } from "@/components/dashboard/hero-cards";
+import { QuickActions } from "@/components/dashboard/quick-actions";
+import { TrendChart } from "@/components/dashboard/trend-chart";
+import { AiInsight } from "@/components/dashboard/ai-insight";
+import { AutoSeed } from "@/components/dashboard/auto-seed";
+import { GuidedTour } from "@/components/dashboard/guided-tour";
 import { SuggestionList } from "@/components/dashboard/suggestion-list";
-import Link from "next/link";
+import { generateDashboardInsight } from "@/lib/ml/insights";
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
 
 export default async function DemoPage() {
   const distributor = await getCachedDistributor();
 
   if (!distributor) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-        <p className="text-sm text-[#757575]">
-          No data found. Run the seed script first.
-        </p>
-      </div>
-    );
+    return <AutoSeed />;
   }
 
-  const data = await getCachedDashboardData(distributor.id);
+  const { alerts, campaigns, zones, recommendations } =
+    await getCachedDashboardData(distributor.id);
 
-  const highRiskAlerts = data.alerts.filter((a) => a.riskLevel === "high");
-  const activeCampaigns = data.campaigns.filter((c) => c.status === "sent");
+  const deadStockValue = alerts.reduce((sum, a) => sum + a.stockValue, 0);
+  const deadStockSkuCount = alerts.length;
+
+  // Approximate cleared value from approved campaigns
+  const approvedCampaigns = campaigns.filter((c) => c.status === "sent");
+  const clearedValue = approvedCampaigns.length * 45000; // rough estimate per campaign
+
+  const pendingCount = recommendations.filter((r) => r.status === "pending").length;
+  const activeCampaignCount = campaigns.filter(
+    (c) => c.status === "draft" || c.status === "sent"
+  ).length;
+
+  // Build 4-week trend data (simulated from current dead stock value)
+  const trendData = [
+    { week: "Week 1", value: Math.round(deadStockValue * 1.3) },
+    { week: "Week 2", value: Math.round(deadStockValue * 1.15) },
+    { week: "Week 3", value: Math.round(deadStockValue * 1.05) },
+    { week: "Week 4", value: Math.round(deadStockValue) },
+  ];
+
+  // Pending orders data
+  const pendingOrders = await prisma.order.findMany({
+    where: { distributorId: distributor.id, status: "pending" },
+    select: { totalAmount: true },
+  });
+  const pendingOrderCount = pendingOrders.length;
+  const pendingOrderValue = pendingOrders.reduce((s, o) => s + o.totalAmount, 0);
+
+  // Generate real AI insight from ML analysis
+  const insight = generateDashboardInsight(alerts);
 
   return (
-    <div className="flex flex-col gap-4 py-4 px-4">
-      {/* Header */}
-      <div>
-        <h1 className="text-lg font-bold text-[#1A1A1A]">
-          {distributor.name}
+    <div className="flex flex-col gap-5 py-4">
+      {/* Greeting */}
+      <div className="px-4">
+        <p className="text-sm text-[#8892A8]">{getGreeting()},</p>
+        <h1 className="text-xl font-bold text-white">
+          {distributor.ownerName}
         </h1>
-        <p className="text-xs text-[#9E9E9E]">
-          {distributor.city}, {distributor.state}
-        </p>
+      </div>
+
+      {/* Hero cards */}
+      <div data-tour="hero-cards">
+        <HeroCards
+          deadStockValue={deadStockValue}
+          deadStockSkuCount={deadStockSkuCount}
+          clearedValue={clearedValue}
+          pendingOrders={pendingOrderCount}
+          pendingOrderValue={pendingOrderValue}
+        />
+      </div>
+
+      {/* Quick actions */}
+      <div data-tour="quick-actions">
+        <QuickActions
+          alertCount={deadStockSkuCount}
+          pendingCount={pendingCount}
+          campaignCount={activeCampaignCount}
+          zoneCount={zones.length}
+        />
       </div>
 
       {/* Agent Suggestions */}
-      <SuggestionList />
+      <SuggestionList maxVisible={3} />
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 gap-3">
-        <Link
-          href="/demo/alerts"
-          className="rounded-xl bg-white border border-[#E8E8E8] p-4 shadow-sm"
-        >
-          <p className="text-[10px] text-[#9E9E9E] uppercase tracking-wide">
-            High-Risk Items
-          </p>
-          <p className="text-2xl font-bold text-[#C62828]">
-            {highRiskAlerts.length}
-          </p>
-        </Link>
-        <Link
-          href="/demo/campaigns"
-          className="rounded-xl bg-white border border-[#E8E8E8] p-4 shadow-sm"
-        >
-          <p className="text-[10px] text-[#9E9E9E] uppercase tracking-wide">
-            Active Campaigns
-          </p>
-          <p className="text-2xl font-bold text-[#1A237E]">
-            {activeCampaigns.length}
-          </p>
-        </Link>
-        <div className="rounded-xl bg-white border border-[#E8E8E8] p-4 shadow-sm">
-          <p className="text-[10px] text-[#9E9E9E] uppercase tracking-wide">
-            Zones
-          </p>
-          <p className="text-2xl font-bold text-[#1A1A1A]">
-            {data.zones.length}
-          </p>
-        </div>
-        <div className="rounded-xl bg-white border border-[#E8E8E8] p-4 shadow-sm">
-          <p className="text-[10px] text-[#9E9E9E] uppercase tracking-wide">
-            Total Alerts
-          </p>
-          <p className="text-2xl font-bold text-[#1A1A1A]">
-            {data.alerts.length}
-          </p>
-        </div>
+      {/* Trend chart */}
+      <div data-tour="trend-chart">
+        <TrendChart data={trendData} />
       </div>
+
+      {/* AI Insight */}
+      <div data-tour="ai-insight">
+        <AiInsight
+          message={insight.message}
+          metric={insight.metric}
+          supporting={insight.supporting}
+          linkHref={insight.alertId ? `/demo/recommendations/${insight.alertId}` : "/demo/alerts"}
+        />
+      </div>
+
+      {/* Guided tour for first-time users */}
+      <GuidedTour />
     </div>
   );
 }

@@ -325,7 +325,7 @@ async function getAlertDetail(alertId: string) {
 
 async function generateRecommendationForAlert(alertId: string) {
   // Call the recommend API internally
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const res = await fetch(`${baseUrl}/api/recommend/${alertId}`, { method: "POST" });
   const data = await res.json();
 

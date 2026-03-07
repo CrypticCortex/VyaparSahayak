@@ -6,7 +6,7 @@ import {
 } from "@aws-sdk/client-bedrock-runtime";
 
 const client = new BedrockRuntimeClient({
-  region: process.env.AWS_REGION || "us-east-1",
+  region: process.env.BEDROCK_REGION || process.env.AWS_REGION || "us-east-1",
 });
 
 const isDemoMode = !process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID === "your-key";

@@ -33,14 +33,14 @@ export function BatchesClient({ batches: initialBatches }: { batches: BatchData[
   return (
     <div className="flex flex-col gap-4 py-4">
       <div className="px-4 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-gray-900">Dispatch Batches</h1>
-        <Link href="/demo/orders" className="text-sm text-indigo-600 hover:underline">
+        <h1 className="text-lg font-bold text-white">Dispatch Batches</h1>
+        <Link href="/demo/orders" className="text-sm text-[#FF9933] hover:underline">
           Back to Orders
         </Link>
       </div>
 
       {batches.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-[#8892A8]">
           <p className="text-sm">No dispatch batches yet</p>
           <p className="text-xs mt-1">Confirm orders and create batches from the Orders page</p>
         </div>
@@ -76,7 +76,7 @@ export function BatchesClient({ batches: initialBatches }: { batches: BatchData[
 function Section({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+      <h2 className="text-sm font-semibold text-[#8892A8] uppercase tracking-wide mb-2">
         {title} ({count})
       </h2>
       <div className="space-y-2">{children}</div>
