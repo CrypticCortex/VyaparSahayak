@@ -20,11 +20,14 @@ model Distributor {
   expiryHorizonDays  Int      @default(90)
   createdAt          DateTime @default(now())
 
-  zones       Zone[]
-  inventory   Inventory[]
-  alerts      DeadStockAlert[]
-  campaigns   Campaign[]
-  suggestions AgentSuggestion[]
+  zones          Zone[]
+  inventory      Inventory[]
+  alerts         DeadStockAlert[]
+  campaigns      Campaign[]
+  suggestions    AgentSuggestion[]
+  whatsAppGroups WhatsAppGroup[]
+  orders         Order[]
+  batches        DispatchBatch[]
 }
 
 model Zone {
@@ -36,8 +39,9 @@ model Zone {
   avgOrderValue  Float
   orderFrequency Float
 
-  distributor Distributor @relation(fields: [distributorId], references: [id])
-  retailers   Retailer[]
+  distributor    Distributor    @relation(fields: [distributorId], references: [id])
+  retailers      Retailer[]
+  whatsAppGroups WhatsAppGroup[]
 }
 
 model Retailer {
@@ -55,6 +59,7 @@ model Retailer {
 
   zone         Zone               @relation(fields: [zoneId], references: [id])
   transactions SalesTransaction[]
+  orders       Order[]
 }
 
 model Product {
@@ -72,8 +77,9 @@ model Product {
   unitsPerCase  Int
   shelfLifeDays Int
 
-  inventory Inventory[]
-  lineItems SalesLineItem[]
+  inventory  Inventory[]
+  lineItems  SalesLineItem[]
+  orderItems OrderItem[]
 }
 
 model Inventory {
@@ -170,6 +176,73 @@ model Campaign {
 
   recommendation Recommendation @relation(fields: [recommendationId], references: [id])
   distributor    Distributor    @relation(fields: [distributorId], references: [id])
+}
+
+model WhatsAppGroup {
+  id            String  @id @default(cuid())
+  distributorId String
+  zoneId        String?
+  name          String
+  type          String
+  inviteLink    String?
+  memberCount   Int     @default(0)
+
+  distributor Distributor @relation(fields: [distributorId], references: [id])
+  zone        Zone?       @relation(fields: [zoneId], references: [id])
+}
+
+model Order {
+  id            String    @id @default(cuid())
+  token         String    @unique
+  retailerId    String
+  distributorId String
+  status        String    @default("pending")
+  totalAmount   Float
+  zoneCode      String
+  createdAt     DateTime  @default(now())
+  confirmedAt   DateTime?
+  dispatchedAt  DateTime?
+
+  retailer    Retailer           @relation(fields: [retailerId], references: [id])
+  distributor Distributor        @relation(fields: [distributorId], references: [id])
+  items       OrderItem[]
+  batches     DispatchBatchOrder[]
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Float
+  discount  Float  @default(0)
+  total     Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model DispatchBatch {
+  id            String    @id @default(cuid())
+  distributorId String
+  zoneCode      String
+  status        String    @default("planned")
+  vehicleInfo   String?
+  plannedDate   DateTime?
+  dispatchedAt  DateTime?
+  createdAt     DateTime  @default(now())
+
+  distributor Distributor        @relation(fields: [distributorId], references: [id])
+  orders      DispatchBatchOrder[]
+}
+
+model DispatchBatchOrder {
+  id        String @id @default(cuid())
+  batchId   String
+  orderId   String
+
+  batch DispatchBatch @relation(fields: [batchId], references: [id])
+  order Order         @relation(fields: [orderId], references: [id])
 }
 
 model AgentSuggestion {
