@@ -17,7 +17,7 @@ export default async function RecommendationPage({ params }: PageProps) {
   if (!alert) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-        <p className="text-sm text-[#8892A8]">Alert not found.</p>
+        <p className="text-sm text-gray-500">Alert not found.</p>
         <Link href="/demo/alerts" className="text-sm text-[#FF9933] font-semibold mt-2">
           Back to alerts
         </Link>
@@ -92,33 +92,22 @@ export default async function RecommendationPage({ params }: PageProps) {
   const recoverySteps = rec?.aiRecoverySteps;
 
   return (
-    <div className="flex flex-col gap-4 py-4">
-      {/* Top nav */}
-      <div className="flex items-center gap-3 px-4">
-        <Link
-          href="/demo/alerts"
-          className="w-8 h-8 rounded-full bg-white/[0.06] border border-white/[0.06] flex items-center justify-center"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-bold text-white flex-1">AI Recommendation</h1>
-        <Badge className="bg-[#FF9933]/15 text-[#FF9933] border-0 text-xs">
+    <div className="p-4 lg:p-6 space-y-5">
+      {/* Product info */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold text-gray-900">{product?.name || "Product"}</p>
+          <p className="text-xs text-gray-500">
+          {alert.zoneCode} * {alert.daysSinceLastSale}d idle * Score: {alert.score.toFixed(1)}
+        </p>
+        </div>
+        <Badge className="bg-orange-50 text-[#FF9933] border-0 text-xs font-semibold">
           {alert.riskLevel}
         </Badge>
       </div>
 
-      {/* Product info */}
-      <div className="px-4">
-        <p className="text-sm font-semibold text-white">{product?.name || "Product"}</p>
-        <p className="text-xs text-[#8892A8]">
-          {alert.zoneCode} * {alert.daysSinceLastSale}d idle * Score: {alert.score.toFixed(1)}
-        </p>
-      </div>
-
       {/* Poster preview */}
-      <div className="px-4">
+      <div>
         {existingCampaign?.posterUrl ? (
           <div className="space-y-2">
             <img
@@ -151,7 +140,7 @@ export default async function RecommendationPage({ params }: PageProps) {
       </div>
 
       {/* Recommendation details */}
-      <div className="px-4">
+      <div>
         <RecommendationCard
           problem={problem}
           solution={solution}
@@ -164,7 +153,7 @@ export default async function RecommendationPage({ params }: PageProps) {
       </div>
 
       {/* Action buttons */}
-      <div className="px-4">
+      <div>
         {existingCampaign ? (
           <Link
             href={`/demo/campaigns/${existingCampaign.id}`}

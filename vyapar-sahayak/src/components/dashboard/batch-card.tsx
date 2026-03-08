@@ -23,9 +23,9 @@ interface BatchData {
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
-  planned: { bg: "bg-[#FF9933]/15", text: "text-[#FF9933]", dot: "bg-[#FF9933]" },
-  dispatched: { bg: "bg-[#FF9933]/15", text: "text-[#FF9933]", dot: "bg-[#FF9933]" },
-  delivered: { bg: "bg-[#10B981]/15", text: "text-[#10B981]", dot: "bg-[#10B981]" },
+  planned: { bg: "bg-[#FF9933]/10", text: "text-[#FF9933]", dot: "bg-[#FF9933]" },
+  dispatched: { bg: "bg-[#FF9933]/10", text: "text-[#FF9933]", dot: "bg-[#FF9933]" },
+  delivered: { bg: "bg-[#10B981]/10", text: "text-[#10B981]", dot: "bg-[#10B981]" },
 };
 
 export function BatchCard({
@@ -58,36 +58,36 @@ export function BatchCard({
     }
   }
 
-  const statusStyle = STATUS_STYLES[batch.status] || { bg: "bg-white/[0.04]", text: "text-[#8892A8]", dot: "bg-[#8892A8]" };
+  const statusStyle = STATUS_STYLES[batch.status] || { bg: "bg-gray-100", text: "text-gray-500", dot: "bg-gray-400" };
 
   return (
-    <div className="border border-white/[0.06] rounded-2xl overflow-hidden hover:border-white/[0.10] transition-shadow duration-200">
+    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-white/[0.04] transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-gray-50 transition-colors"
       >
         <div className="text-left">
           <div className="flex items-center gap-2">
-            <p className="font-bold text-sm text-white">{batch.zoneName}</p>
+            <p className="font-bold text-sm text-gray-900">{batch.zoneName}</p>
             <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide ${statusStyle.bg} ${statusStyle.text}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
               {batch.status}
             </span>
           </div>
-          <div className="flex items-center gap-2 mt-1 text-[11px] text-[#8892A8]">
+          <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
             <span>{batch.orderCount} orders</span>
-            <span className="text-white/20">*</span>
-            <span className="font-semibold text-white">Rs.{batch.totalValue.toLocaleString("en-IN")}</span>
+            <span className="text-gray-300">*</span>
+            <span className="font-semibold text-gray-900">Rs.{batch.totalValue.toLocaleString("en-IN")}</span>
             {batch.vehicleInfo && (
               <>
-                <span className="text-white/20">*</span>
+                <span className="text-gray-300">*</span>
                 <span>{batch.vehicleInfo}</span>
               </>
             )}
           </div>
         </div>
         <svg
-          className={`w-4 h-4 text-[#8892A8] transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -95,15 +95,15 @@ export function BatchCard({
       </button>
 
       {expanded && (
-        <div className="border-t border-white/[0.06] p-3.5 space-y-2 bg-white/[0.02]">
+        <div className="border-t border-gray-200 p-3.5 space-y-2 bg-gray-50">
           {batch.orders.map((order) => (
             <div key={order.id} className="flex justify-between text-sm px-1 py-1">
-              <span className="text-[#8892A8]">{order.retailerName}</span>
-              <span className="text-white font-semibold">Rs.{Math.round(order.totalAmount).toLocaleString("en-IN")}</span>
+              <span className="text-gray-500">{order.retailerName}</span>
+              <span className="text-gray-900 font-semibold">Rs.{Math.round(order.totalAmount).toLocaleString("en-IN")}</span>
             </div>
           ))}
 
-          <div className="pt-2.5 border-t border-white/[0.06]">
+          <div className="pt-2.5 border-t border-gray-200">
             {batch.status === "planned" && (
               <button
                 onClick={() => handleStatusUpdate("dispatched")}

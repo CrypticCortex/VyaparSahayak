@@ -11,7 +11,7 @@ export default function DemoLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#060B18]">
+    <div className="min-h-screen bg-[#F9FAFB]">
       <DemoShell>{children}</DemoShell>
     </div>
   );

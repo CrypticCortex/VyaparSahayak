@@ -17,9 +17,9 @@ interface SuggestionCardProps {
 }
 
 const PRIORITY_STYLES: Record<string, { border: string; accent: string; bg: string; text: string }> = {
-  high: { border: "border-l-[#FF9933]", accent: "bg-[#FF9933]", bg: "bg-[#FF9933]/15", text: "text-[#FF9933]" },
-  medium: { border: "border-l-[#E8453C]", accent: "bg-[#E8453C]", bg: "bg-[#E8453C]/15", text: "text-[#E8453C]" },
-  low: { border: "border-l-[#0066FF]", accent: "bg-[#0066FF]", bg: "bg-[#0066FF]/15", text: "text-[#0066FF]" },
+  high: { border: "border-l-[#FF9933]", accent: "bg-[#FF9933]", bg: "bg-orange-50", text: "text-[#FF9933]" },
+  medium: { border: "border-l-[#EF4444]", accent: "bg-[#EF4444]", bg: "bg-red-50", text: "text-[#EF4444]" },
+  low: { border: "border-l-[#3B82F6]", accent: "bg-[#3B82F6]", bg: "bg-blue-50", text: "text-[#3B82F6]" },
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -60,12 +60,12 @@ export function SuggestionCard({
 
   return (
     <div
-      className={`relative rounded-2xl bg-white/[0.03] border border-white/[0.06] border-l-2 ${style.border} p-4 transition-all duration-200`}
+      className={`relative rounded-2xl bg-white border border-gray-200 border-l-2 ${style.border} p-4 shadow-sm hover:shadow-md transition-all duration-200`}
     >
       {/* Dismiss button */}
       <button
         onClick={() => onDismiss(suggestion.id)}
-        className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-[#8892A8] hover:text-white transition-all"
+        className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-all"
         aria-label="Dismiss suggestion"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -85,17 +85,17 @@ export function SuggestionCard({
       </div>
 
       {/* Title */}
-      <p className="text-sm font-semibold text-white pr-8 mb-1 leading-snug">
+      <p className="text-sm font-semibold text-gray-900 pr-8 mb-1 leading-snug">
         {suggestion.title}
       </p>
 
       {/* Description */}
-      <p className="text-xs text-[#8892A8] mb-3 leading-relaxed">{suggestion.description}</p>
+      <p className="text-xs text-gray-500 mb-3 leading-relaxed">{suggestion.description}</p>
 
       {/* Action button */}
       <button
         onClick={() => onAction(suggestion)}
-        className="inline-flex items-center gap-1.5 text-xs font-bold text-white py-2 px-3.5 rounded-xl bg-white/[0.06] border border-white/[0.06] hover:bg-white/[0.10] active:scale-[0.98] transition-all"
+        className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 py-2 px-3.5 rounded-xl bg-gray-50 border border-gray-200 hover:bg-gray-100 active:scale-[0.98] transition-all"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d={actionIcon} />

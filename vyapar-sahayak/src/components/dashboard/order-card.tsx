@@ -19,11 +19,11 @@ interface OrderData {
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
-  pending: { bg: "bg-[#FF9933]/15", text: "text-[#FF9933]", dot: "bg-[#FF9933]" },
-  confirmed: { bg: "bg-[#0066FF]/15", text: "text-[#0066FF]", dot: "bg-[#0066FF]" },
-  dispatched: { bg: "bg-[#FF9933]/15", text: "text-[#FF9933]", dot: "bg-[#FF9933]" },
-  delivered: { bg: "bg-[#10B981]/15", text: "text-[#10B981]", dot: "bg-[#10B981]" },
-  cancelled: { bg: "bg-[#E8453C]/15", text: "text-[#E8453C]", dot: "bg-[#E8453C]" },
+  pending: { bg: "bg-[#FF9933]/10", text: "text-[#FF9933]", dot: "bg-[#FF9933]" },
+  confirmed: { bg: "bg-[#3B82F6]/10", text: "text-[#3B82F6]", dot: "bg-[#3B82F6]" },
+  dispatched: { bg: "bg-[#FF9933]/10", text: "text-[#FF9933]", dot: "bg-[#FF9933]" },
+  delivered: { bg: "bg-[#10B981]/10", text: "text-[#10B981]", dot: "bg-[#10B981]" },
+  cancelled: { bg: "bg-[#E8453C]/10", text: "text-[#E8453C]", dot: "bg-[#E8453C]" },
 };
 
 export function OrderCard({
@@ -56,14 +56,14 @@ export function OrderCard({
   }
 
   const timeAgo = getRelativeTime(order.createdAt);
-  const statusStyle = STATUS_STYLES[order.status] || { bg: "bg-white/[0.04]", text: "text-[#8892A8]", dot: "bg-[#8892A8]" };
+  const statusStyle = STATUS_STYLES[order.status] || { bg: "bg-gray-100", text: "text-gray-500", dot: "bg-gray-400" };
 
   return (
-    <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-3.5 space-y-2.5 hover:border-white/[0.10] transition-shadow duration-200">
+    <div className="bg-white border border-gray-200 rounded-2xl p-3.5 space-y-2.5 shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="flex items-start justify-between">
         <div>
-          <p className="font-semibold text-white text-sm">{order.retailerName}</p>
-          <p className="text-[11px] text-[#8892A8]/70 mt-0.5">{timeAgo}</p>
+          <p className="font-semibold text-gray-900 text-sm">{order.retailerName}</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">{timeAgo}</p>
         </div>
         <span className={`inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide ${statusStyle.bg} ${statusStyle.text}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
@@ -74,14 +74,14 @@ export function OrderCard({
       <div className="space-y-1.5 py-1">
         {order.items.map((item, i) => (
           <div key={i} className="flex justify-between text-xs">
-            <span className="text-[#8892A8]">{item.productName} <span className="text-[#8892A8]/70">x{item.quantity}</span></span>
-            <span className="text-white font-medium">Rs.{Math.round(item.total)}</span>
+            <span className="text-gray-500">{item.productName} <span className="text-gray-400">x{item.quantity}</span></span>
+            <span className="text-gray-900 font-medium">Rs.{Math.round(item.total)}</span>
           </div>
         ))}
       </div>
 
-      <div className="flex justify-between items-center pt-2 border-t border-white/[0.06]">
-        <span className="font-bold text-sm text-white">Rs.{Math.round(order.totalAmount).toLocaleString("en-IN")}</span>
+      <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+        <span className="font-bold text-sm text-gray-900">Rs.{Math.round(order.totalAmount).toLocaleString("en-IN")}</span>
 
         {order.status === "pending" && (
           <div className="flex gap-2">

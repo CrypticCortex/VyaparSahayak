@@ -54,7 +54,7 @@ export function ApproveRejectButtons({
   if (rejected) {
     return (
       <div className="text-center py-4">
-        <p className="text-sm text-[#8892A8]">Recommendation rejected. Returning to alerts...</p>
+        <p className="text-sm text-gray-500">Recommendation rejected. Returning to alerts...</p>
       </div>
     );
   }
@@ -71,7 +71,7 @@ export function ApproveRejectButtons({
       <button
         onClick={handleReject}
         disabled={loading}
-        className="flex-1 py-3 rounded-xl border-2 border-[#E8453C] text-[#E8453C] text-sm font-semibold hover:bg-[#E8453C]/10 transition-colors disabled:opacity-50"
+        className="flex-1 py-3 rounded-xl border-2 border-red-400 text-red-500 text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
       >
         Reject
       </button>

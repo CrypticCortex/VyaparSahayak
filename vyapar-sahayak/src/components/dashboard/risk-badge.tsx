@@ -3,10 +3,10 @@ interface RiskBadgeProps {
 }
 
 const riskConfig: Record<string, { bg: string; text: string; label: string }> = {
-  high: { bg: "bg-[#E8453C]/15", text: "text-[#E8453C]", label: "High Risk" },
-  medium: { bg: "bg-[#FF9933]/15", text: "text-[#FF9933]", label: "Medium Risk" },
-  low: { bg: "bg-[#10B981]/15", text: "text-[#10B981]", label: "Watch" },
-  watch: { bg: "bg-[#10B981]/15", text: "text-[#10B981]", label: "Watch" },
+  high: { bg: "bg-red-50", text: "text-red-600", label: "High Risk" },
+  medium: { bg: "bg-amber-50", text: "text-amber-600", label: "Medium Risk" },
+  low: { bg: "bg-green-50", text: "text-green-600", label: "Watch" },
+  watch: { bg: "bg-green-50", text: "text-green-600", label: "Watch" },
 };
 
 export function RiskBadge({ level }: RiskBadgeProps) {

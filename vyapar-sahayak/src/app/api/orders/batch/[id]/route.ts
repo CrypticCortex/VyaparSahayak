@@ -35,8 +35,6 @@ export async function PATCH(
     const orderIds = batch.orders.map((o) => o.orderId);
     const orderData: any = { status };
     if (status === "dispatched") orderData.dispatchedAt = new Date();
-    if (status === "delivered") orderData.deliveredAt = new Date();
-
     await prisma.order.updateMany({
       where: { id: { in: orderIds } },
       data: orderData,

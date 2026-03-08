@@ -131,9 +131,9 @@ export function CampaignPreview({
       {/* Poster picker -- show when both exist */}
       {hasBothPosters ? (
         <div className="px-4">
-          <h3 className="text-sm font-semibold text-white mb-2">
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">
             Choose Poster
-            <span className="text-xs font-normal text-[#8892A8] ml-2">
+            <span className="text-xs font-normal text-gray-500 ml-2">
               Pick the best one for your campaign
             </span>
           </h3>
@@ -144,7 +144,7 @@ export function CampaignPreview({
               className={`relative rounded-xl overflow-hidden border-2 transition-all ${
                 selectedPoster === "aws"
                   ? "border-[#FF9933] shadow-lg"
-                  : "border-white/[0.06] opacity-70"
+                  : "border-gray-200 opacity-70"
               }`}
             >
               <img
@@ -155,7 +155,7 @@ export function CampaignPreview({
               <div className={`absolute bottom-0 inset-x-0 py-1.5 text-center text-xs font-semibold ${
                 selectedPoster === "aws"
                   ? "bg-[#FF9933] text-white"
-                  : "bg-white/[0.06] text-[#8892A8]"
+                  : "bg-gray-100 text-gray-500"
               }`}>
                 AWS Nova Canvas
                 {selectedPoster === "aws" && (
@@ -172,7 +172,7 @@ export function CampaignPreview({
               className={`relative rounded-xl overflow-hidden border-2 transition-all ${
                 selectedPoster === "gemini"
                   ? "border-[#FF9933] shadow-lg"
-                  : "border-white/[0.06] opacity-70"
+                  : "border-gray-200 opacity-70"
               }`}
             >
               <img
@@ -183,7 +183,7 @@ export function CampaignPreview({
               <div className={`absolute bottom-0 inset-x-0 py-1.5 text-center text-xs font-semibold ${
                 selectedPoster === "gemini"
                   ? "bg-[#FF9933] text-white"
-                  : "bg-white/[0.06] text-[#8892A8]"
+                  : "bg-gray-100 text-gray-500"
               }`}>
                 Gemini Pro
                 {selectedPoster === "gemini" && (
@@ -195,7 +195,7 @@ export function CampaignPreview({
             </button>
           </div>
           {saving && (
-            <p className="text-xs text-[#8892A8] text-center mt-1">Saving selection...</p>
+            <p className="text-xs text-gray-500 text-center mt-1">Saving selection...</p>
           )}
         </div>
       ) : (
@@ -226,7 +226,7 @@ export function CampaignPreview({
       {/* Selected poster large preview (when picker is active) */}
       {hasBothPosters && activePoster && (
         <div className="px-4">
-          <p className="text-xs text-[#8892A8] mb-1">Selected poster preview</p>
+          <p className="text-xs text-gray-500 mb-1">Selected poster preview</p>
           <img
             src={activePoster}
             alt={`Selected ${selectedPoster} poster`}
@@ -237,7 +237,7 @@ export function CampaignPreview({
 
       {/* WhatsApp message preview */}
       <div className="px-4">
-        <h3 className="text-sm font-semibold text-white mb-2">WhatsApp Message</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">WhatsApp Message</h3>
         <div className="bg-[#DCF8C6] rounded-xl rounded-tl-sm p-4 max-w-[85%]">
           <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-line">
             {whatsappMessage || `Special offer on ${productName}! Contact your distributor for details.`}
@@ -251,13 +251,13 @@ export function CampaignPreview({
       {/* Sending animation -- WhatsApp message flying out */}
       {sending && (
         <div className="px-4">
-          <h3 className="text-sm font-semibold text-white mb-2">
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">
             Sending to WhatsApp...
           </h3>
-          <div className="bg-[#10B981]/15 rounded-xl p-3 border border-[#10B981]/30">
+          <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-200">
             {/* Mini WhatsApp message preview */}
             <div className="flex gap-2 mb-3">
-              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-white/[0.04]">
+              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-gray-100">
                 {(activePoster || posterUrl || posterUrlAlt) && (
                   <img
                     src={(activePoster || posterUrl || posterUrlAlt)!}
@@ -267,8 +267,8 @@ export function CampaignPreview({
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#10B981]">{productName}</p>
-                <p className="text-[10px] text-[#10B981]/80 truncate">
+                <p className="text-xs font-semibold text-emerald-600">{productName}</p>
+                <p className="text-[10px] text-emerald-500 truncate">
                   {whatsappMessage?.slice(0, 60) || "Special offer!"}...
                 </p>
               </div>
@@ -281,7 +281,7 @@ export function CampaignPreview({
                   <div
                     key={zone.id}
                     className={`flex items-center gap-2 text-xs transition-all duration-300 ${
-                      delivered ? "text-[#10B981]" : "text-[#8892A8]"
+                      delivered ? "text-emerald-600" : "text-gray-500"
                     }`}
                   >
                     {delivered ? (
@@ -289,7 +289,7 @@ export function CampaignPreview({
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     ) : (
-                      <span className="w-3.5 h-3.5 rounded-full border-2 border-[#8892A8] border-t-transparent animate-spin" />
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
                     )}
                     <span className={delivered ? "font-medium" : ""}>{zone.name}</span>
                     <span className="text-[10px]">({zone.retailerCount})</span>
@@ -304,9 +304,9 @@ export function CampaignPreview({
       {/* Recipient groups */}
       {!sending && (
         <div className="px-4">
-          <h3 className="text-sm font-semibold text-white mb-2">
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">
             Recipient Groups
-            <span className="text-xs font-normal text-[#8892A8] ml-2">
+            <span className="text-xs font-normal text-gray-500 ml-2">
               {totalRecipients} retailers
             </span>
           </h3>
@@ -314,10 +314,10 @@ export function CampaignPreview({
             {zoneGroups.map((zone) => (
               <div
                 key={zone.id}
-                className={`flex items-center justify-between rounded-xl bg-white/[0.03] border px-4 py-3 transition-colors ${
+                className={`flex items-center justify-between rounded-xl bg-white border shadow-sm px-4 py-3 transition-colors ${
                   sent && selectedZones.has(zone.id)
-                    ? "border-[#10B981]/30 bg-[#10B981]/10"
-                    : "border-white/[0.06]"
+                    ? "border-emerald-200 bg-emerald-50"
+                    : "border-gray-200"
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -327,8 +327,8 @@ export function CampaignPreview({
                     </svg>
                   )}
                   <div>
-                    <p className="text-sm font-medium text-white">{zone.name}</p>
-                    <p className="text-xs text-[#8892A8]">
+                    <p className="text-sm font-medium text-gray-900">{zone.name}</p>
+                    <p className="text-xs text-gray-500">
                       {zone.code} * {zone.retailerCount} retailers
                     </p>
                   </div>
@@ -337,7 +337,7 @@ export function CampaignPreview({
                   <button
                     onClick={() => toggleZone(zone.id)}
                     className={`relative w-11 h-6 rounded-full transition-colors ${
-                      selectedZones.has(zone.id) ? "bg-[#FF9933]" : "bg-white/[0.10]"
+                      selectedZones.has(zone.id) ? "bg-[#FF9933]" : "bg-gray-200"
                     }`}
                   >
                     <span
@@ -357,8 +357,8 @@ export function CampaignPreview({
       {status !== "sent" && (
         <div className="px-4 flex flex-col gap-2 pb-4">
           {sent ? (
-            <div className="py-3 rounded-xl bg-[#10B981]/15 text-center">
-              <p className="text-sm font-semibold text-[#10B981]">
+            <div className="py-3 rounded-xl bg-emerald-50 text-center">
+              <p className="text-sm font-semibold text-emerald-600">
                 Campaign sent to {totalRecipients} retailers!
               </p>
             </div>

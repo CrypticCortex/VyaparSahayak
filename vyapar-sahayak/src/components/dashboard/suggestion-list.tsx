@@ -95,16 +95,16 @@ export function SuggestionList({ maxVisible = 5 }: SuggestionListProps) {
 
   if (loading) {
     return (
-      <div className="px-4 space-y-3 mb-6">
+      <div className="space-y-3">
         {[1, 2].map((i) => (
           <div
             key={i}
-            className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 animate-pulse"
+            className="rounded-2xl bg-white border border-gray-200 p-4 animate-pulse"
           >
-            <div className="h-4 bg-white/[0.06] rounded-full w-28 mb-3" />
-            <div className="h-4 bg-white/[0.06] rounded w-3/4 mb-2" />
-            <div className="h-3 bg-white/[0.06] rounded w-1/2 mb-3" />
-            <div className="h-8 bg-white/[0.06] rounded-xl w-24" />
+            <div className="h-4 bg-gray-100 rounded-full w-28 mb-3" />
+            <div className="h-4 bg-gray-100 rounded w-3/4 mb-2" />
+            <div className="h-3 bg-gray-100 rounded w-1/2 mb-3" />
+            <div className="h-8 bg-gray-100 rounded-xl w-24" />
           </div>
         ))}
       </div>
@@ -117,19 +117,19 @@ export function SuggestionList({ maxVisible = 5 }: SuggestionListProps) {
   const remaining = suggestions.length - maxVisible;
 
   return (
-    <div className="px-4 space-y-3 mb-6">
+    <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-lg bg-[#FF9933]/15 flex items-center justify-center">
+        <div className="w-6 h-6 rounded-lg bg-[#FF9933]/10 flex items-center justify-center">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF9933" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2L2 7l10 5 10-5-10-5z" />
             <path d="M2 17l10 5 10-5" />
             <path d="M2 12l10 5 10-5" />
           </svg>
         </div>
-        <h2 className="text-sm font-bold text-white tracking-tight">
+        <h2 className="text-sm font-bold text-gray-900 tracking-tight">
           Agent Suggestions
         </h2>
-        <span className="text-[10px] font-bold text-[#FF9933] bg-[#FF9933]/15 px-2 py-0.5 rounded-full">
+        <span className="text-[10px] font-bold text-[#FF9933] bg-orange-50 px-2 py-0.5 rounded-full">
           {suggestions.length}
         </span>
       </div>
@@ -146,7 +146,7 @@ export function SuggestionList({ maxVisible = 5 }: SuggestionListProps) {
       {!showAll && remaining > 0 && (
         <button
           onClick={() => setShowAll(true)}
-          className="w-full text-center text-xs font-bold text-[#FF9933] py-2.5 rounded-xl border border-white/[0.06] hover:bg-white/[0.03] active:scale-[0.99] transition-all"
+          className="w-full text-center text-xs font-bold text-[#FF9933] py-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 active:scale-[0.99] transition-all"
         >
           Show {remaining} more suggestion{remaining !== 1 ? "s" : ""}
         </button>
