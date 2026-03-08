@@ -9,7 +9,12 @@ interface PageProps {
 export default async function CampaignPage({ params }: PageProps) {
   const { id } = await params;
 
-  const campaign = await getCachedCampaign(id);
+  let campaign;
+  try {
+    campaign = await getCachedCampaign(id);
+  } catch (e) {
+    return <div className="p-6 text-red-500 text-xs font-mono whitespace-pre-wrap">Campaign load error: {String(e)}</div>;
+  }
 
   if (!campaign) {
     return (
@@ -22,7 +27,12 @@ export default async function CampaignPage({ params }: PageProps) {
     );
   }
 
-  const zones = await getCachedCampaignZones(campaign.distributorId);
+  let zones;
+  try {
+    zones = await getCachedCampaignZones(campaign.distributorId);
+  } catch (e) {
+    return <div className="p-6 text-red-500 text-xs font-mono whitespace-pre-wrap">Zones load error: {String(e)}</div>;
+  }
 
   const zoneGroups = zones.map((z) => ({
     id: z.id,

@@ -12,7 +12,12 @@ interface PageProps {
 export default async function RecommendationPage({ params }: PageProps) {
   const { id } = await params;
 
-  const alert = await getCachedAlert(id);
+  let alert;
+  try {
+    alert = await getCachedAlert(id);
+  } catch (e) {
+    return <div className="p-6 text-red-500 text-xs font-mono whitespace-pre-wrap">Alert load error: {String(e)}</div>;
+  }
 
   if (!alert) {
     return (
@@ -25,15 +30,18 @@ export default async function RecommendationPage({ params }: PageProps) {
     );
   }
 
-  const product = await getCachedProduct(alert.productId);
-  const zones = await getCachedZones(alert.distributorId);
-
-  // Check if a campaign already exists for this alert
-  const existingRec = await prisma.recommendation.findFirst({
-    where: { alertId: id },
-    include: { campaign: true },
-    orderBy: { createdAt: "desc" },
-  });
+  let product, zones, existingRec;
+  try {
+    product = await getCachedProduct(alert.productId);
+    zones = await getCachedZones(alert.distributorId);
+    existingRec = await prisma.recommendation.findFirst({
+      where: { alertId: id },
+      include: { campaign: true },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (e) {
+    return <div className="p-6 text-red-500 text-xs font-mono whitespace-pre-wrap">Data load error: {String(e)}</div>;
+  }
   const existingCampaign = existingRec?.campaign || null;
 
   // Parse recommendation JSON from alert (includes ML + optional LLM fields)
