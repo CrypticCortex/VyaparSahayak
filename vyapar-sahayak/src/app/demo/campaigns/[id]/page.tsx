@@ -1,23 +1,20 @@
-import { getCachedCampaign, getCachedCampaignZones } from "@/lib/cache";
+import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { CampaignPreview } from "@/components/dashboard/campaign-preview";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default async function CampaignPage({ params }: any) {
-  let id: string;
-  try {
-    const p = await params;
-    id = p.id;
-  } catch {
-    return <div className="p-6 text-red-500">Failed to read params</div>;
-  }
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
-  let campaign;
-  try {
-    campaign = await getCachedCampaign(id);
-  } catch (e) {
-    return <div className="p-6 text-red-500 text-xs font-mono whitespace-pre-wrap">Campaign load error: {String(e)}</div>;
-  }
+export const dynamic = "force-dynamic";
+
+export default async function CampaignPage({ params }: PageProps) {
+  const { id } = await params;
+
+  const campaign = await prisma.campaign.findUnique({
+    where: { id },
+    include: { recommendation: true },
+  });
 
   if (!campaign) {
     return (
@@ -30,12 +27,10 @@ export default async function CampaignPage({ params }: any) {
     );
   }
 
-  let zones;
-  try {
-    zones = await getCachedCampaignZones(campaign.distributorId);
-  } catch (e) {
-    return <div className="p-6 text-red-500 text-xs font-mono whitespace-pre-wrap">Zones load error: {String(e)}</div>;
-  }
+  const zones = await prisma.zone.findMany({
+    where: { distributorId: campaign.distributorId },
+    include: { _count: { select: { retailers: true } } },
+  });
 
   const zoneGroups = zones.map((z) => ({
     id: z.id,
@@ -44,21 +39,10 @@ export default async function CampaignPage({ params }: any) {
     retailerCount: z._count.retailers,
   }));
 
-  // Parse target groups from campaign
-  let targetGroupNames: string[] = [];
-  if (campaign.targetGroups) {
-    try {
-      targetGroupNames = JSON.parse(campaign.targetGroups);
-    } catch {
-      targetGroupNames = campaign.targetGroups.split(",").map((s: string) => s.trim());
-    }
-  }
-
   const isNewlyApproved = campaign.status === "draft";
 
   return (
     <div className="p-4 lg:p-6 flex flex-col gap-4">
-      {/* Success banner */}
       {isNewlyApproved && (
         <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3">
           <div className="flex items-center gap-2">
@@ -92,7 +76,6 @@ export default async function CampaignPage({ params }: any) {
         </div>
       )}
 
-      {/* Campaign preview component */}
       <CampaignPreview
         campaignId={campaign.id}
         posterUrl={campaign.posterUrl}

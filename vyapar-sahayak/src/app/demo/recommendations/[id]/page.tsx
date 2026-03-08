@@ -1,7 +1,5 @@
-import { getCachedAlert, getCachedProduct, getCachedZones } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-// Badge replaced with inline span to avoid radix-ui SSR issues on Amplify
 import { RecommendationCard } from "@/components/dashboard/recommendation-card";
 import { ApproveRejectButtons } from "./approve-reject-buttons";
 
@@ -9,15 +7,27 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+export const dynamic = "force-dynamic";
+
+interface RecData {
+  type: string;
+  targetZone?: string;
+  bundleWithName?: string;
+  discountPct?: number;
+  estimatedRecovery: number;
+  rationale: string;
+  urgency: string;
+  aiProblem?: string;
+  aiSolution?: string;
+  aiRationale?: string;
+  aiUrgency?: string;
+  aiRecoverySteps?: string[];
+}
+
 export default async function RecommendationPage({ params }: PageProps) {
   const { id } = await params;
 
-  let alert;
-  try {
-    alert = await getCachedAlert(id);
-  } catch (e) {
-    return <div className="p-6 text-red-500 text-xs font-mono whitespace-pre-wrap">Alert load error: {String(e)}</div>;
-  }
+  const alert = await prisma.deadStockAlert.findUnique({ where: { id } });
 
   if (!alert) {
     return (
@@ -30,35 +40,18 @@ export default async function RecommendationPage({ params }: PageProps) {
     );
   }
 
-  let product, zones, existingRec;
-  try {
-    product = await getCachedProduct(alert.productId);
-    zones = await getCachedZones(alert.distributorId);
-    existingRec = await prisma.recommendation.findFirst({
+  const [product, zones, existingRec] = await Promise.all([
+    prisma.product.findUnique({ where: { id: alert.productId }, select: { name: true } }),
+    prisma.zone.findMany({ where: { distributorId: alert.distributorId }, select: { name: true, code: true } }),
+    prisma.recommendation.findFirst({
       where: { alertId: id },
       include: { campaign: true },
       orderBy: { createdAt: "desc" },
-    });
-  } catch (e) {
-    return <div className="p-6 text-red-500 text-xs font-mono whitespace-pre-wrap">Data load error: {String(e)}</div>;
-  }
+    }),
+  ]);
+
   const existingCampaign = existingRec?.campaign || null;
 
-  // Parse recommendation JSON from alert (includes ML + optional LLM fields)
-  interface RecData {
-    type: string;
-    targetZone?: string;
-    bundleWithName?: string;
-    discountPct?: number;
-    estimatedRecovery: number;
-    rationale: string;
-    urgency: string;
-    aiProblem?: string;
-    aiSolution?: string;
-    aiRationale?: string;
-    aiUrgency?: string;
-    aiRecoverySteps?: string[];
-  }
   let rec: RecData | null = null;
   if (alert.recommendationJson) {
     try {
@@ -75,7 +68,6 @@ export default async function RecommendationPage({ params }: PageProps) {
 
   const productName = product?.name || "Product";
 
-  // Use LLM-generated text when available, fall back to ML templates
   const problem = rec?.aiProblem ||
     `${productName} has been idle for ${alert.daysSinceLastSale} days with ${formatVal(alert.stockValue)} stuck in inventory across ${alert.zoneCode}.${alert.daysToExpiry < 90 ? ` Expiry in ${alert.daysToExpiry} days adds urgency.` : ""}`;
 
@@ -101,20 +93,18 @@ export default async function RecommendationPage({ params }: PageProps) {
 
   return (
     <div className="p-4 lg:p-6 space-y-5">
-      {/* Product info */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold text-gray-900">{product?.name || "Product"}</p>
+          <p className="text-sm font-semibold text-gray-900">{productName}</p>
           <p className="text-xs text-gray-500">
-          {alert.zoneCode} * {alert.daysSinceLastSale}d idle * Score: {alert.score.toFixed(1)}
-        </p>
+            {alert.zoneCode} * {alert.daysSinceLastSale}d idle * Score: {alert.score.toFixed(1)}
+          </p>
         </div>
         <span className="inline-flex items-center rounded-full bg-orange-50 text-[#FF9933] border-0 text-xs font-semibold px-2 py-0.5">
           {alert.riskLevel}
         </span>
       </div>
 
-      {/* Poster preview */}
       <div>
         {existingCampaign?.posterUrl ? (
           <div className="space-y-2">
@@ -134,20 +124,17 @@ export default async function RecommendationPage({ params }: PageProps) {
         ) : (
           <div
             className="rounded-xl h-48 flex items-center justify-center"
-            style={{
-              background: "linear-gradient(135deg, #FF9933 0%, #E8453C 100%)",
-            }}
+            style={{ background: "linear-gradient(135deg, #FF9933 0%, #E8453C 100%)" }}
           >
             <div className="text-center">
               <p className="text-white/80 text-xs mb-1">Generated Poster Preview</p>
-              <p className="text-white text-lg font-bold">{product?.name || "Product"}</p>
+              <p className="text-white text-lg font-bold">{productName}</p>
               <p className="text-white/70 text-sm">Special Offer Campaign</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Recommendation details */}
       <div>
         <RecommendationCard
           problem={problem}
@@ -160,7 +147,6 @@ export default async function RecommendationPage({ params }: PageProps) {
         />
       </div>
 
-      {/* Action buttons */}
       <div>
         {existingCampaign ? (
           <Link
