@@ -1,22 +1,66 @@
-import { prisma } from "@/lib/db";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { CampaignPreview } from "@/components/dashboard/campaign-preview";
 
-interface PageProps {
-  params: Promise<{ id: string }>;
+interface CampaignData {
+  id: string;
+  posterUrl: string | null;
+  posterUrlAlt: string | null;
+  productName: string;
+  offerHeadline: string;
+  offerDetails: string;
+  whatsappMessage: string;
+  distributorId: string;
+  status: string;
+  sentAt: string | null;
+  recommendation: unknown;
 }
 
-export const dynamic = "force-dynamic";
+interface ZoneData {
+  id: string;
+  name: string;
+  code: string;
+  _count: { retailers: number };
+}
 
-export default async function CampaignPage({ params }: PageProps) {
-  const { id } = await params;
+export default function CampaignPage() {
+  const { id } = useParams<{ id: string }>();
+  const [campaign, setCampaign] = useState<CampaignData | null>(null);
+  const [zones, setZones] = useState<ZoneData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const campaign = await prisma.campaign.findUnique({
-    where: { id },
-    include: { recommendation: true },
-  });
+  useEffect(() => {
+    fetch(`/api/campaign-detail?id=${id}`)
+      .then((res) => {
+        if (!res.ok) {
+          setNotFound(true);
+          return null;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data) {
+          setCampaign(data.campaign);
+          setZones(data.zones);
+        }
+      })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
+  }, [id]);
 
-  if (!campaign) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-6 h-6 border-2 border-[#FF9933] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (notFound || !campaign) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
         <p className="text-sm text-gray-500">Campaign not found.</p>
@@ -26,11 +70,6 @@ export default async function CampaignPage({ params }: PageProps) {
       </div>
     );
   }
-
-  const zones = await prisma.zone.findMany({
-    where: { distributorId: campaign.distributorId },
-    include: { _count: { select: { retailers: true } } },
-  });
 
   const zoneGroups = zones.map((z) => ({
     id: z.id,
