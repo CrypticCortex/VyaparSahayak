@@ -42,9 +42,14 @@ vyapar-sahayak/
       seed/
         data.ts            # Seed data generators
     components/
-      dashboard/           # All dashboard UI components (hero-cards, quick-actions,
-                           #   trend-chart, ai-insight, product-card, recommendation-card,
-                           #   campaign-preview, guided-tour, bottom-nav, etc.)
+      dashboard/           # All dashboard UI components
+                           #   Layout: sidebar, top-bar, bottom-nav, demo-shell
+                           #   Metrics: metrics-row, inventory-table
+                           #   Charts: trend-chart
+                           #   AI: ai-insight, suggestion-card, suggestion-list
+                           #   Cards: product-card, recommendation-card, order-card,
+                           #          batch-card, campaign-preview, hero-cards
+                           #   Other: quick-actions, guided-tour, risk-badge, zone-order-group
       chat/
         chat-widget.tsx    # Floating agentic chatbot
       landing/             # Landing page components

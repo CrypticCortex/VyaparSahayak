@@ -71,13 +71,13 @@ export function BottomNav({ onChatOpen, chatActive }: BottomNavProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-[#060B18]/90 backdrop-blur-xl border-t border-white/[0.06] z-50">
-      <div className="flex items-center justify-around py-1.5">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200 z-50 lg:hidden">
+      <div className="flex items-center justify-around py-1.5 max-w-lg mx-auto">
         {navItems.map((item) => {
           const isActive =
             item.href === "/demo"
               ? pathname === "/demo"
-              : item.href !== "#" && pathname.startsWith(item.href);
+              : pathname.startsWith(item.href);
 
           return (
             <Link
@@ -86,13 +86,13 @@ export function BottomNav({ onChatOpen, chatActive }: BottomNavProps) {
               className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-[10px] font-semibold transition-colors ${
                 isActive && !chatActive
                   ? "text-[#FF9933]"
-                  : "text-[#8892A8]/50 active:text-[#8892A8]"
+                  : "text-gray-400 active:text-gray-600"
               }`}
             >
               {isActive && !chatActive && (
                 <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-5 h-1 rounded-full bg-[#FF9933]" />
               )}
-              <span className={isActive && !chatActive ? "text-[#FF9933]" : "text-[#8892A8]/50"}>
+              <span className={isActive && !chatActive ? "text-[#FF9933]" : "text-gray-400"}>
                 {item.icon}
               </span>
               {item.label}
@@ -106,13 +106,13 @@ export function BottomNav({ onChatOpen, chatActive }: BottomNavProps) {
           className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-[10px] font-semibold transition-colors ${
             chatActive
               ? "text-[#FF9933]"
-              : "text-[#8892A8]/50 active:text-[#8892A8]"
+              : "text-gray-400 active:text-gray-600"
           }`}
         >
           {chatActive && (
             <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-5 h-1 rounded-full bg-[#FF9933]" />
           )}
-          <span className={chatActive ? "text-[#FF9933]" : "text-[#8892A8]/50"}>
+          <span className={chatActive ? "text-[#FF9933]" : "text-gray-400"}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>

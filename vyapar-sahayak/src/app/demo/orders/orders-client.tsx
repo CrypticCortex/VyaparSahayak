@@ -71,26 +71,26 @@ export function OrdersClient({
     }
   }
   return (
-    <div className="flex flex-col gap-4 py-4">
-      <div className="px-4">
-        <h1 className="text-lg font-bold text-white">Orders</h1>
+    <div className="flex flex-col gap-4 p-4 lg:p-6">
+      <div>
+        <h1 className="text-lg font-bold text-gray-900">Orders</h1>
       </div>
 
       {/* Summary bar */}
-      <div className="px-4 flex gap-3">
-        <div className="flex-1 bg-[#FF9933]/10 border border-[#FF9933]/20 rounded-lg p-3 text-center">
+      <div className="flex gap-3">
+        <div className="flex-1 bg-white border border-[#FF9933]/30 rounded-lg p-3 text-center shadow-sm">
           <p className="text-2xl font-bold text-[#FF9933]">{pendingCount}</p>
           <p className="text-xs text-[#FF9933]">Pending</p>
         </div>
-        <div className="flex-1 bg-[#0066FF]/10 border border-[#0066FF]/20 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-[#0066FF]">
+        <div className="flex-1 bg-white border border-[#3B82F6]/30 rounded-lg p-3 text-center shadow-sm">
+          <p className="text-2xl font-bold text-[#3B82F6]">
             Rs.{todayValue.toLocaleString("en-IN")}
           </p>
-          <p className="text-xs text-[#0066FF]">Total Value</p>
+          <p className="text-xs text-[#3B82F6]">Total Value</p>
         </div>
         <Link
           href="/demo/orders/batches"
-          className="flex-1 bg-[#FF9933]/10 border border-[#FF9933]/20 rounded-lg p-3 text-center hover:bg-[#FF9933]/15 transition-colors"
+          className="flex-1 bg-white border border-[#FF9933]/30 rounded-lg p-3 text-center shadow-sm hover:shadow-md transition-shadow"
         >
           <p className="text-lg font-bold text-[#FF9933]">Batches</p>
           <p className="text-xs text-[#FF9933]">View All</p>
@@ -99,7 +99,7 @@ export function OrdersClient({
 
       {/* Suggestions */}
       {suggestions.length > 0 && (
-        <div className="px-4 space-y-2">
+        <div className="space-y-2">
           {suggestions.map((s) => (
             <SuggestionCard
               key={s.id}
@@ -112,9 +112,9 @@ export function OrdersClient({
       )}
 
       {/* Zone groups */}
-      <div className="px-4 space-y-3">
+      <div className="space-y-3">
         {zoneGroups.length === 0 ? (
-          <div className="text-center py-8 text-[#8892A8]">
+          <div className="text-center py-8 text-gray-500">
             <p className="text-sm">No orders yet</p>
           </div>
         ) : (

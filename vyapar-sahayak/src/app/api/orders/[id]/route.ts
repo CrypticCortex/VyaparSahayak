@@ -33,7 +33,6 @@ export async function PATCH(
     const data: any = { status };
     if (status === "confirmed") data.confirmedAt = new Date();
     if (status === "dispatched") data.dispatchedAt = new Date();
-    if (status === "delivered") data.deliveredAt = new Date();
     if (status === "cancelled" && reason) data.notes = `Rejected: ${reason}`;
 
     const updated = await prisma.order.update({ where: { id }, data });

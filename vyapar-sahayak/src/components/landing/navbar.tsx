@@ -1,21 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
-const navLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Demo", href: "#demo" },
-  { label: "Pricing", href: "#pricing" },
-];
-
 export default function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     function onScroll() {
-      setScrolled(window.scrollY > 40);
+      setScrolled(window.scrollY > 20);
     }
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -23,59 +18,40 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      initial={{ y: -80 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "border-b border-white/[0.04] backdrop-blur-xl"
-          : ""
+          ? "border-b border-gray-200/60 bg-white/80 backdrop-blur-xl shadow-sm"
+          : "bg-transparent"
       }`}
-      style={{
-        background: scrolled ? "rgba(6,11,24,0.85)" : "transparent",
-      }}
     >
-      <div
-        className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-all duration-300 ${
-          scrolled ? "py-3" : "py-4"
-        }`}
-      >
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-1.5">
-          <span className="font-display text-xl font-semibold text-white">
+        <a href="#" className="flex items-center gap-2">
+          <Image
+            src="/logo.png"
+            alt="Vyapar Sahayak"
+            width={36}
+            height={36}
+            className="w-9 h-9 object-contain"
+          />
+          <span className="text-xl font-bold tracking-tight text-gray-900">
             Vyapar
           </span>
-          <span className="text-gradient-warm text-xl font-semibold">
+          <span className="text-xl font-bold tracking-tight text-[#FF9933]">
             Sahayak
           </span>
         </a>
 
-        {/* Desktop nav links */}
-        <div className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="text-sm text-white/40 transition-colors hover:text-white"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-
         {/* Desktop CTA */}
-        <div className="hidden md:flex">
-          <a
-            href="/demo"
-            className="rounded-full px-5 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, #FF9933 0%, #E8453C 100%)",
-            }}
-          >
-            Try Demo
-          </a>
-        </div>
+        <a
+          href="/demo"
+          className="hidden rounded-full bg-[#FF9933] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#E8870A] hover:shadow-md active:scale-[0.97] md:inline-flex"
+        >
+          Try Demo
+        </a>
 
         {/* Mobile hamburger */}
         <button
@@ -84,16 +60,24 @@ export default function Navbar() {
           aria-label="Toggle menu"
         >
           <motion.span
-            animate={mobileOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
-            className="block h-0.5 w-6 bg-white"
+            animate={
+              mobileOpen
+                ? { rotate: 45, y: 6, background: "#111827" }
+                : { rotate: 0, y: 0, background: "#111827" }
+            }
+            className="block h-0.5 w-5 rounded-full bg-gray-900"
           />
           <motion.span
-            animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }}
-            className="block h-0.5 w-6 bg-white"
+            animate={mobileOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
+            className="block h-0.5 w-5 rounded-full bg-gray-900"
           />
           <motion.span
-            animate={mobileOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
-            className="block h-0.5 w-6 bg-white"
+            animate={
+              mobileOpen
+                ? { rotate: -45, y: -6, background: "#111827" }
+                : { rotate: 0, y: 0, background: "#111827" }
+            }
+            className="block h-0.5 w-5 rounded-full bg-gray-900"
           />
         </button>
       </div>
@@ -105,30 +89,14 @@ export default function Navbar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden md:hidden"
-            style={{
-              background: "rgba(6,11,24,0.97)",
-            }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden border-t border-gray-100 bg-white md:hidden"
           >
-            <div className="flex flex-col gap-4 px-6 py-6">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="text-sm text-white/40 transition-colors hover:text-white"
-                >
-                  {link.label}
-                </a>
-              ))}
+            <div className="px-6 py-5">
               <a
                 href="/demo"
-                className="mt-2 rounded-full px-5 py-2.5 text-center text-sm font-medium text-white transition-opacity hover:opacity-90"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(135deg, #FF9933 0%, #E8453C 100%)",
-                }}
+                onClick={() => setMobileOpen(false)}
+                className="block w-full rounded-full bg-[#FF9933] py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-[#E8870A]"
               >
                 Try Demo
               </a>

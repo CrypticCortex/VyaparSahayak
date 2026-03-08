@@ -51,9 +51,21 @@ DATABASE_URL           # SQLite path (default: file:./dev.db)
 - Lib modules: kebab-case (`agent-tools.ts`)
 - Route files: `page.tsx`, `route.ts`, `layout.tsx` (Next.js convention)
 
-## Mobile-First Design
+## Responsive Layout
 
-- All pages designed for 390px viewport width first
-- Max container width: `max-w-md` (448px)
-- Bottom navigation bar on all demo pages
-- Floating chat widget (bottom-right, z-40)
+- Mobile-first design: 375px base, scales to 768px (tablet) and 1280px+ (desktop)
+- No max-width cap on demo pages (removed old max-w-md / 448px constraint)
+- Desktop (>= 768px): collapsible sidebar navigation (240px expanded, 64px collapsed)
+- Mobile (< 768px): bottom navigation bar
+- Sidebar state persisted in localStorage (try/catch wrapped for SSR safety)
+- Main content area uses responsive left margin matching sidebar width
+- Floating chat widget remains (bottom-right, z-40)
+
+## Collapsible Sidebar Pattern
+
+- Sidebar component: `src/components/dashboard/sidebar.tsx`
+- 5 nav items with lucide-react icons, active route via `usePathname()`
+- Active item: saffron left border + bg-orange-50
+- Width transition: `transition-all duration-200`
+- Hidden below md breakpoint: `hidden md:flex`
+- Collapse state managed in DemoLayout, passed down as prop

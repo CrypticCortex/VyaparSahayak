@@ -26,6 +26,17 @@ Small to mid-size FMCG distributors (think: one person managing 50-200 products 
 - Active campaigns and their reach (retailer count)
 - Risk distribution (high / medium / low)
 
+## Dashboard Revamp (Light Theme)
+
+The demo dashboard has been revamped from dark theme to light mode (white + saffron #FF9933)
+matching the landing page. Key changes:
+- Light background (#F9FAFB) with white card surfaces
+- Saffron (#FF9933) as primary accent -- active nav, chart gradients, highlights
+- Collapsible sidebar on desktop (240px / 64px), bottom nav on mobile only
+- Metrics row (4 cards) replaces hero-cards + quick-actions
+- Sortable inventory data table as the dashboard centerpiece
+- All sub-pages (alerts, campaigns, network, orders, batches) use the same light theme
+
 ## Language & Locale
 
 - UI is in English, but WhatsApp messages and posters mix English + Tamil

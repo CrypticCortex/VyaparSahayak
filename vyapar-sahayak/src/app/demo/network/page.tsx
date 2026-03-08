@@ -1,12 +1,11 @@
 import { getCachedDistributor, getCachedNetworkData } from "@/lib/cache";
-import Link from "next/link";
 
 export default async function NetworkPage() {
   const distributor = await getCachedDistributor();
   if (!distributor) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <p className="text-sm text-[#757575]">No data. Run seed first.</p>
+        <p className="text-sm text-gray-500">No data. Run seed first.</p>
       </div>
     );
   }
@@ -26,40 +25,30 @@ export default async function NetworkPage() {
     `Rs.${Math.round(v)}`;
 
   return (
-    <div className="flex flex-col gap-4 py-4">
-      <div className="flex items-center gap-3 px-4">
-        <Link
-          href="/demo"
-          className="w-8 h-8 rounded-full bg-white/[0.06] border border-white/[0.06] flex items-center justify-center"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-bold text-white flex-1">Retailer Network</h1>
-        <span className="text-sm text-[#8892A8]">{zones.length} zones</span>
+    <div className="p-4 lg:p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-lg font-bold text-gray-900">Retailer Network</h1>
+        <span className="text-sm text-gray-500">{zones.length} zones</span>
       </div>
 
-      <div className="px-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
-            <p className="text-[10px] text-[#8892A8]/70 uppercase tracking-wide">Total Retailers</p>
-            <p className="text-2xl font-bold text-white">{zoneStats.reduce((s, z) => s + z.retailerCount, 0)}</p>
-          </div>
-          <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
-            <p className="text-[10px] text-[#8892A8]/70 uppercase tracking-wide">Active Zones</p>
-            <p className="text-2xl font-bold text-[#FF9933]">{zones.length}</p>
-          </div>
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-4">
+          <p className="text-[10px] text-gray-400 uppercase tracking-wide">Total Retailers</p>
+          <p className="text-2xl font-bold text-gray-900">{zoneStats.reduce((s, z) => s + z.retailerCount, 0)}</p>
+        </div>
+        <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-4">
+          <p className="text-[10px] text-gray-400 uppercase tracking-wide">Active Zones</p>
+          <p className="text-2xl font-bold text-[#FF9933]">{zones.length}</p>
         </div>
       </div>
 
-      <div className="px-4 flex flex-col gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {zoneStats.map((z) => (
-          <div key={z.id} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
+          <div key={z.id} className="rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-4">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <p className="text-sm font-semibold text-white">{z.name}</p>
-                <p className="text-xs text-[#8892A8]">{z.code}</p>
+                <p className="text-sm font-semibold text-gray-900">{z.name}</p>
+                <p className="text-xs text-gray-500">{z.code}</p>
               </div>
               <span className="text-xs bg-[#FF9933]/15 text-[#FF9933] px-2 py-0.5 rounded-full font-medium">
                 {z.retailerCount} retailers
@@ -67,18 +56,18 @@ export default async function NetworkPage() {
             </div>
             <div className="flex gap-4 mt-3">
               <div>
-                <p className="text-[10px] text-[#8892A8]/70 uppercase">Dead Stock</p>
-                <p className={`text-sm font-semibold ${z.deadStockValue > 0 ? "text-[#E8453C]" : "text-[#10B981]"}`}>
+                <p className="text-[10px] text-gray-400 uppercase">Dead Stock</p>
+                <p className={`text-sm font-semibold ${z.deadStockValue > 0 ? "text-red-600" : "text-green-600"}`}>
                   {z.deadStockValue > 0 ? formatVal(z.deadStockValue) : "Clean"}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-[#8892A8]/70 uppercase">Alerts</p>
-                <p className="text-sm font-semibold text-white">{z.alertCount}</p>
+                <p className="text-[10px] text-gray-400 uppercase">Alerts</p>
+                <p className="text-sm font-semibold text-gray-900">{z.alertCount}</p>
               </div>
               {z.highRisk > 0 && (
                 <div>
-                  <p className="text-[10px] text-[#8892A8]/70 uppercase">High Risk</p>
+                  <p className="text-[10px] text-gray-400 uppercase">High Risk</p>
                   <p className="text-sm font-semibold text-[#FF9933]">{z.highRisk}</p>
                 </div>
               )}

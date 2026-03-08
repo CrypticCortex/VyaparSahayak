@@ -43,11 +43,11 @@ export function ProductCard({
   }
 
   return (
-    <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
+    <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-4 hover:shadow-md hover:-translate-y-0.5 transition-all">
       {/* Header row */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-white truncate">
+          <h3 className="text-sm font-semibold text-gray-900 truncate">
             {productName}
           </h3>
         </div>
@@ -57,18 +57,18 @@ export function ProductCard({
       {/* Metadata */}
       <div className="flex gap-4 mb-3">
         <div>
-          <p className="text-[10px] text-[#8892A8]/70 uppercase tracking-wide">Value</p>
-          <p className="text-sm font-semibold text-white">
+          <p className="text-[10px] text-gray-400 uppercase tracking-wide">Value</p>
+          <p className="text-sm font-semibold text-gray-900">
             {formatCurrency(stockValue)}
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-[#8892A8]/70 uppercase tracking-wide">Days Idle</p>
-          <p className="text-sm font-semibold text-white">{daysSinceLastSale}d</p>
+          <p className="text-[10px] text-gray-400 uppercase tracking-wide">Days Idle</p>
+          <p className="text-sm font-semibold text-gray-900">{daysSinceLastSale}d</p>
         </div>
         <div>
-          <p className="text-[10px] text-[#8892A8]/70 uppercase tracking-wide">Expiry</p>
-          <p className={`text-sm font-semibold ${daysToExpiry < 30 ? "text-[#E8453C]" : "text-white"}`}>
+          <p className="text-[10px] text-gray-400 uppercase tracking-wide">Expiry</p>
+          <p className={`text-sm font-semibold ${daysToExpiry < 30 ? "text-red-600" : "text-gray-900"}`}>
             {daysToExpiry}d
           </p>
         </div>
@@ -76,7 +76,7 @@ export function ProductCard({
 
       {/* AI suggestion */}
       {(suggestion || recommendationType) && (
-        <div className="rounded-lg bg-[#FF9933]/10 p-3 mb-3">
+        <div className="rounded-lg bg-orange-50 p-3 mb-3">
           <div className="flex items-center gap-1.5 mb-1">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF9933" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -87,11 +87,11 @@ export function ProductCard({
               AI Suggestion
             </span>
           </div>
-          <p className="text-xs text-[#FF9933]/80 leading-relaxed">
+          <p className="text-xs text-orange-700 leading-relaxed">
             {suggestion || `Recommended: ${recommendationType || "analysis pending"}`}
           </p>
           {estimatedRecovery > 0 && (
-            <p className="text-[10px] text-[#FF9933] mt-1">
+            <p className="text-[10px] text-[#FF9933] font-medium mt-1">
               Est. recovery: {formatCurrency(estimatedRecovery)}
             </p>
           )}
@@ -101,7 +101,7 @@ export function ProductCard({
       {/* View recommendation link */}
       <Link
         href={`/demo/recommendations/${alertId}`}
-        className="block text-center text-xs font-semibold text-[#FF9933] py-2 rounded-lg border border-white/[0.08] hover:bg-white/[0.06] transition-colors"
+        className="block text-center text-xs font-semibold text-[#FF9933] py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
       >
         View Recommendation
       </Link>
