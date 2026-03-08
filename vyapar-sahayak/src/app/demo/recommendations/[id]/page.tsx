@@ -1,13 +1,23 @@
-import { prisma } from "@/lib/db";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { RecommendationCard } from "@/components/dashboard/recommendation-card";
 import { ApproveRejectButtons } from "./approve-reject-buttons";
 
-interface PageProps {
-  params: Promise<{ id: string }>;
+interface AlertData {
+  id: string;
+  productId: string;
+  distributorId: string;
+  zoneCode: string;
+  daysSinceLastSale: number;
+  daysToExpiry: number;
+  stockValue: number;
+  score: number;
+  riskLevel: string;
+  recommendationJson: string | null;
 }
-
-export const dynamic = "force-dynamic";
 
 interface RecData {
   type: string;
@@ -24,12 +34,56 @@ interface RecData {
   aiRecoverySteps?: string[];
 }
 
-export default async function RecommendationPage({ params }: PageProps) {
-  const { id } = await params;
+interface ExistingRec {
+  id: string;
+  alertId: string;
+  campaign: {
+    id: string;
+    posterUrl: string | null;
+    posterUrlAlt: string | null;
+    status: string;
+  } | null;
+}
 
-  const alert = await prisma.deadStockAlert.findUnique({ where: { id } });
+export default function RecommendationPage() {
+  const { id } = useParams<{ id: string }>();
+  const [alert, setAlert] = useState<AlertData | null>(null);
+  const [productName, setProductName] = useState("Product");
+  const [zones, setZones] = useState<{ name: string; code: string }[]>([]);
+  const [existingRec, setExistingRec] = useState<ExistingRec | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!alert) {
+  useEffect(() => {
+    fetch(`/api/recommendation-detail?id=${id}`)
+      .then((res) => {
+        if (!res.ok) {
+          setNotFound(true);
+          return null;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data) {
+          setAlert(data.alert);
+          setProductName(data.product?.name || "Product");
+          setZones(data.zones || []);
+          setExistingRec(data.existingRec || null);
+        }
+      })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-6 h-6 border-2 border-[#FF9933] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (notFound || !alert) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
         <p className="text-sm text-gray-500">Alert not found.</p>
@@ -39,16 +93,6 @@ export default async function RecommendationPage({ params }: PageProps) {
       </div>
     );
   }
-
-  const [product, zones, existingRec] = await Promise.all([
-    prisma.product.findUnique({ where: { id: alert.productId }, select: { name: true } }),
-    prisma.zone.findMany({ where: { distributorId: alert.distributorId }, select: { name: true, code: true } }),
-    prisma.recommendation.findFirst({
-      where: { alertId: id },
-      include: { campaign: true },
-      orderBy: { createdAt: "desc" },
-    }),
-  ]);
 
   const existingCampaign = existingRec?.campaign || null;
 
@@ -65,8 +109,6 @@ export default async function RecommendationPage({ params }: PageProps) {
     v >= 100000 ? `Rs.${(v / 100000).toFixed(1)}L` :
     v >= 1000 ? `Rs.${(v / 1000).toFixed(1)}K` :
     `Rs.${Math.round(v)}`;
-
-  const productName = product?.name || "Product";
 
   const problem = rec?.aiProblem ||
     `${productName} has been idle for ${alert.daysSinceLastSale} days with ${formatVal(alert.stockValue)} stuck in inventory across ${alert.zoneCode}.${alert.daysToExpiry < 90 ? ` Expiry in ${alert.daysToExpiry} days adds urgency.` : ""}`;
