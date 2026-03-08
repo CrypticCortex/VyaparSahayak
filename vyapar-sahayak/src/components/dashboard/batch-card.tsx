@@ -15,7 +15,7 @@ interface BatchData {
   zoneName: string;
   status: string;
   vehicleInfo: string | null;
-  plannedDate: string;
+  plannedDate: string | null;
   dispatchedAt: string | null;
   orderCount: number;
   totalValue: number;
