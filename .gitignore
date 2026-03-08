@@ -12,6 +12,7 @@ package-lock.json
 # screenshots and media (playwright captures, demo recordings)
 screenshots/
 *.png
+!vyapar-sahayak/public/logo.png
 
 # playwright mcp
 .playwright-mcp/
