@@ -201,6 +201,8 @@ model Order {
   status        String    @default("pending")
   totalAmount   Float
   zoneCode      String
+  notes         String?
+  campaignId    String?
   createdAt     DateTime  @default(now())
   confirmedAt   DateTime?
   dispatchedAt  DateTime?
