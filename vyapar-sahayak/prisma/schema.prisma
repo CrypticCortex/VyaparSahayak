@@ -165,11 +165,13 @@ model Campaign {
   distributorId    String
   productName      String
   posterUrl        String?
+  posterUrlAlt     String?
   posterPrompt     String?
   whatsappMessage  String?
   offerHeadline    String?
   offerDetails     String?
   targetGroups     String?
+  orderLink        String?
   status           String    @default("draft")
   sentAt           DateTime?
   createdAt        DateTime  @default(now())
