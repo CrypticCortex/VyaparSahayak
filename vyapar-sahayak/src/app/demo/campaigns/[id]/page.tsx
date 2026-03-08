@@ -2,12 +2,15 @@ import { getCachedCampaign, getCachedCampaignZones } from "@/lib/cache";
 import Link from "next/link";
 import { CampaignPreview } from "@/components/dashboard/campaign-preview";
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default async function CampaignPage({ params }: PageProps) {
-  const { id } = await params;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function CampaignPage({ params }: any) {
+  let id: string;
+  try {
+    const p = await params;
+    id = p.id;
+  } catch {
+    return <div className="p-6 text-red-500">Failed to read params</div>;
+  }
 
   let campaign;
   try {
