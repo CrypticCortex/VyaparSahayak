@@ -1,7 +1,7 @@
 import { getCachedAlert, getCachedProduct, getCachedZones } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+// Badge replaced with inline span to avoid radix-ui SSR issues on Amplify
 import { RecommendationCard } from "@/components/dashboard/recommendation-card";
 import { ApproveRejectButtons } from "./approve-reject-buttons";
 
@@ -109,9 +109,9 @@ export default async function RecommendationPage({ params }: PageProps) {
           {alert.zoneCode} * {alert.daysSinceLastSale}d idle * Score: {alert.score.toFixed(1)}
         </p>
         </div>
-        <Badge className="bg-orange-50 text-[#FF9933] border-0 text-xs font-semibold">
+        <span className="inline-flex items-center rounded-full bg-orange-50 text-[#FF9933] border-0 text-xs font-semibold px-2 py-0.5">
           {alert.riskLevel}
-        </Badge>
+        </span>
       </div>
 
       {/* Poster preview */}
