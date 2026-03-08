@@ -704,16 +704,20 @@ export const getCampaignPerformance = tool({
     const where: any = { distributorId: distributor.id, status: "sent" };
     if (input.campaign_id) where.id = input.campaign_id;
 
-    const campaigns = await prisma.campaign.findMany({
-      where,
-      include: { orders: { include: { retailer: { select: { name: true } } } } },
-    });
+    const campaigns = await prisma.campaign.findMany({ where });
 
     if (campaigns.length === 0) {
       return { campaigns: [], message: "No sent campaigns found." };
     }
 
+    const campaignIds = campaigns.map((c) => c.id);
+    const orders = await prisma.order.findMany({
+      where: { campaignId: { in: campaignIds } },
+    });
+
     const results = campaigns.map((c) => {
+      const campaignOrders = orders.filter((o) => o.campaignId === c.id);
+
       // Parse target groups to estimate reach
       let totalReached = 0;
       try {
@@ -723,12 +727,12 @@ export const getCampaignPerformance = tool({
         totalReached = 50;
       }
 
-      const orderCount = c.orders.length;
+      const orderCount = campaignOrders.length;
       const conversionRate = totalReached > 0 ? ((orderCount / totalReached) * 100).toFixed(1) : "0";
 
       // Per-zone breakdown
       const zoneOrders: Record<string, number> = {};
-      for (const order of c.orders) {
+      for (const order of campaignOrders) {
         zoneOrders[order.zoneCode] = (zoneOrders[order.zoneCode] || 0) + 1;
       }
 
@@ -738,7 +742,7 @@ export const getCampaignPerformance = tool({
         totalReached,
         totalOrdered: orderCount,
         conversionRate: `${conversionRate}%`,
-        totalOrderValue: Math.round(c.orders.reduce((s, o) => s + o.totalAmount, 0)),
+        totalOrderValue: Math.round(campaignOrders.reduce((s, o) => s + o.totalAmount, 0)),
         zoneBreakdown: Object.entries(zoneOrders).map(([zone, count]) => ({ zone, orders: count })),
         sentAt: c.sentAt?.toISOString() || null,
       };
@@ -758,12 +762,15 @@ export const sendCampaignReminder = tool({
   callback: async (input) => {
     const campaign = await prisma.campaign.findUnique({
       where: { id: input.campaign_id },
-      include: { orders: { select: { retailerId: true } } },
     });
     if (!campaign) return err("Campaign not found");
     if (campaign.status !== "sent") return err("Campaign has not been sent yet. Send it first.");
 
-    const orderedRetailerIds = new Set(campaign.orders.map((o) => o.retailerId));
+    const campaignOrders = await prisma.order.findMany({
+      where: { campaignId: campaign.id },
+      select: { retailerId: true },
+    });
+    const orderedRetailerIds = new Set(campaignOrders.map((o) => o.retailerId));
 
     // Get all retailers in target zones
     const distributor = await prisma.distributor.findFirst();

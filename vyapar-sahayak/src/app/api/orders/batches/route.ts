@@ -38,7 +38,7 @@ export async function GET() {
       zoneName: zoneMap[b.zoneCode] || b.zoneCode,
       status: b.status,
       vehicleInfo: b.vehicleInfo,
-      plannedDate: b.plannedDate.toISOString(),
+      plannedDate: b.plannedDate?.toISOString() || null,
       dispatchedAt: b.dispatchedAt?.toISOString() || null,
       orderCount: b.orders.length,
       totalValue: Math.round(b.orders.reduce((s, o) => s + o.order.totalAmount, 0)),
