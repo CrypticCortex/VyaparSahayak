@@ -2,6 +2,16 @@
 
 import { prisma } from "@/lib/db";
 import { DISTRIBUTOR, ZONES, PRODUCTS, RETAILER_NAMES } from "@/lib/seed/data";
+
+// Minimal test to see if server actions + Prisma work on Amplify
+export async function testPrisma() {
+  try {
+    const count = await prisma.distributor.count();
+    return { ok: true, count };
+  } catch (error) {
+    return { ok: false, error: String(error) };
+  }
+}
 import { generateSalesHistory, generateInventory } from "@/lib/seed/generate";
 import { subDays, subHours } from "date-fns";
 import { extractFeatures } from "@/lib/ml/features";
