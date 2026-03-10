@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
+  // Log all env var keys to diagnose what's available
+  const allKeys = Object.keys(process.env).filter(k =>
+    !k.startsWith('npm_') && !k.startsWith('NEXT_') && k !== 'PATH' && k !== 'HOME'
+  ).sort();
+
   const dbUrl = process.env.DATABASE_URL;
-  const hasToken = !!process.env.TURSO_AUTH_TOKEN;
 
   try {
     const { prisma } = await import("@/lib/db");
@@ -12,16 +16,15 @@ export async function GET() {
       distributors: count,
       dbUrlSet: !!dbUrl,
       dbUrlPrefix: dbUrl ? dbUrl.substring(0, 20) : "undefined",
-      hasToken,
+      availableKeys: allKeys,
       time: new Date().toISOString(),
     });
   } catch (error) {
     return NextResponse.json({
       pong: true,
-      error: String(error),
+      error: String(error).substring(0, 200),
       dbUrlSet: !!dbUrl,
-      dbUrlPrefix: dbUrl ? dbUrl.substring(0, 20) : "undefined",
-      hasToken,
+      availableKeys: allKeys,
       time: new Date().toISOString(),
     }, { status: 500 });
   }
