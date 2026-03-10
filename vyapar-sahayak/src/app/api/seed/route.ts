@@ -1,6 +1,5 @@
 // src/app/api/seed/route.ts
 
-export const runtime = "nodejs";
 export const maxDuration = 120;
 
 import { NextResponse } from "next/server";
