@@ -25,7 +25,7 @@ const doWrite = unstable_cache(
     return { action: "created", id: dist.id, name: dist.name };
   },
   [`dbwrite-${Date.now()}`],
-  { revalidate: 0 }
+  { revalidate: 1 }
 );
 
 export default async function DbWritePage() {
