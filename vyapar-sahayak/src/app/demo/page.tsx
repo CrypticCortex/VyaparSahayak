@@ -1,3 +1,5 @@
+export const maxDuration = 120;
+
 import { getCachedDistributor, getCachedDashboardData, getCachedProducts } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import { MetricsRow } from "@/components/dashboard/metrics-row";
