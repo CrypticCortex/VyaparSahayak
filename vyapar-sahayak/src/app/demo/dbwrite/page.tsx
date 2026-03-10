@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function DbWritePage() {
   const existing = await prisma.distributor.findFirst();

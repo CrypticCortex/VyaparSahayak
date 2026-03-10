@@ -1,8 +1,14 @@
 import { prisma } from "@/lib/db";
+import { unstable_cache } from "next/cache";
 
-export const dynamic = "force-dynamic";
+// Test 1: no force-dynamic, with cache wrapper (like /demo page)
+const getCachedCount = unstable_cache(
+  () => prisma.distributor.count(),
+  ["dbtest-count"],
+  { revalidate: 10 }
+);
 
 export default async function DbTestPage() {
-  const count = await prisma.distributor.count();
-  return <div>DB Test: distributor count = {count}</div>;
+  const count = await getCachedCount();
+  return <div>DB Test (cached): distributor count = {count}</div>;
 }
