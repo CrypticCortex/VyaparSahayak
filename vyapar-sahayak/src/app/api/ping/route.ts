@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
+    const { prisma } = await import("@/lib/db");
     const count = await prisma.distributor.count();
     return NextResponse.json({ pong: true, distributors: count, time: new Date().toISOString() });
   } catch (error) {
