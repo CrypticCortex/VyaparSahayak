@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db";
 import { DISTRIBUTOR, ZONES, PRODUCTS, RETAILER_NAMES } from "@/lib/seed/data";
 import { generateSalesHistory, generateInventory } from "@/lib/seed/generate";
@@ -288,12 +287,6 @@ async function doSeed() {
         { distributorId: dist.id, type: "campaign_performance", title: "Fortune Oil clearance: 12% conversion", description: "Campaign reached 20 retailers 3 days ago -- 3 orders so far. Send a reminder?", actionType: "send_reminder", actionPayload: JSON.stringify({ campaignProduct: "Fortune Oil" }), priority: "medium" },
       ],
     });
-
-  // Invalidate all caches so /demo picks up fresh data
-  revalidateTag("dashboard", "max");
-  revalidateTag("alerts", "max");
-  revalidateTag("network", "max");
-  revalidateTag("campaigns", "max");
 
   return { alreadySeeded: false };
 }

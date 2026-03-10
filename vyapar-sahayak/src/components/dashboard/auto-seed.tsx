@@ -203,13 +203,18 @@ export function AutoSeed() {
     // Start at step 0 immediately
     setActiveStep(0);
 
-    // Min display time for animation, then navigate to SSR seed page
+    // Min display time for animation, then hit the API seed endpoint
     await new Promise((r) => setTimeout(r, STEPS.length * 1200 + 2000));
     clearInterval(stepTimer);
     setActiveStep(STEPS.length - 1);
     await new Promise((r) => setTimeout(r, 800));
-    // Navigate to the SSR seed page which runs Prisma and redirects back
-    window.location.href = "/demo/seed";
+    // POST to the API seed route which runs Prisma, invalidates cache, then navigate to dashboard
+    try {
+      await fetch("/api/seed", { method: "POST" });
+    } catch {
+      // best-effort -- even if fetch fails, navigate to /demo
+    }
+    window.location.href = "/demo";
   }, [router]);
 
   // Show poster gallery when we're on or past the poster step (index 4)
