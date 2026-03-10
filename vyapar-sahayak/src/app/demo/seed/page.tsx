@@ -6,7 +6,7 @@ import { subDays, subHours } from "date-fns";
 import { extractFeatures } from "@/lib/ml/features";
 import { scoreDeadStock } from "@/lib/ml/scoring";
 import { generateRecommendation } from "@/lib/ml/recommendations";
-import { revalidatePath, unstable_cache } from "next/cache";
+import { unstable_cache } from "next/cache";
 
 export const maxDuration = 120;
 
@@ -297,6 +297,5 @@ const doSeed = unstable_cache(
 
 export default async function SeedPage() {
   await doSeed();
-  revalidatePath("/demo", "layout");
   redirect("/demo");
 }
