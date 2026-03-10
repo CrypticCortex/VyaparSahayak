@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // GET /api/orders/batches -- list dispatch batches grouped by status
 
 import { NextResponse } from "next/server";

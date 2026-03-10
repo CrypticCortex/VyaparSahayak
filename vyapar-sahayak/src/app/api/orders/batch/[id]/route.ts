@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // PATCH /api/orders/batch/[id] -- update batch status, cascade to orders
 
 import { NextResponse } from "next/server";

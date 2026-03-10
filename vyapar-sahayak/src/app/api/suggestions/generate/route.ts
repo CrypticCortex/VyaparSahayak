@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { getCachedDistributor } from "@/lib/cache";
 import { generateSuggestions } from "@/lib/suggestions";

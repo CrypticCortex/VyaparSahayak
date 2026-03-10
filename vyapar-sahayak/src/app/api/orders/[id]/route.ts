@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // PATCH /api/orders/[id] -- update order status
 
 import { NextResponse } from "next/server";

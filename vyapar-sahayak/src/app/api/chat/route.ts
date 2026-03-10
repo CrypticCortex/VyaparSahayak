@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // src/app/api/chat/route.ts
 // Agentic chatbot using Strands Agents SDK with Bedrock
 

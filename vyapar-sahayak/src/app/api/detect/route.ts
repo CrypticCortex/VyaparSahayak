@@ -1,5 +1,7 @@
 // src/app/api/detect/route.ts
 
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { extractFeatures } from "@/lib/ml/features";

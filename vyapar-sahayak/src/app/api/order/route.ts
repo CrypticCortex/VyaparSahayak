@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // POST /api/order -- create an order from a campaign order link
 
 import { NextResponse } from "next/server";

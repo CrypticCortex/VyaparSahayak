@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // POST /api/orders/batch -- create a dispatch batch
 
 import { NextResponse } from "next/server";
