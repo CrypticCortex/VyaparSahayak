@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db";
 import { DISTRIBUTOR, ZONES, PRODUCTS, RETAILER_NAMES } from "@/lib/seed/data";
 import { generateSalesHistory, generateInventory } from "@/lib/seed/generate";
@@ -6,9 +7,9 @@ import { subDays, subHours } from "date-fns";
 import { extractFeatures } from "@/lib/ml/features";
 import { scoreDeadStock } from "@/lib/ml/scoring";
 import { generateRecommendation } from "@/lib/ml/recommendations";
-import { unstable_cache } from "next/cache";
 
 export const maxDuration = 120;
+export const dynamic = "force-dynamic";
 
 function generateOrderToken(index: number): string {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -20,13 +21,12 @@ function generateOrderToken(index: number): string {
   return token;
 }
 
-const doSeed = unstable_cache(
-  async () => {
-    // Check if already seeded
-    const existing = await prisma.distributor.findFirst();
-    if (existing) {
-      return { alreadySeeded: true };
-    }
+async function doSeed() {
+  // Check if already seeded
+  const existing = await prisma.distributor.findFirst();
+  if (existing) {
+    return { alreadySeeded: true };
+  }
 
     // Clear (safety)
     await prisma.dispatchBatchOrder.deleteMany();
@@ -289,11 +289,14 @@ const doSeed = unstable_cache(
       ],
     });
 
-    return { alreadySeeded: false };
-  },
-  ["seed-op"],
-  { revalidate: 1 }
-);
+  // Invalidate all caches so /demo picks up fresh data
+  revalidateTag("dashboard", "max");
+  revalidateTag("alerts", "max");
+  revalidateTag("network", "max");
+  revalidateTag("campaigns", "max");
+
+  return { alreadySeeded: false };
+}
 
 export default async function SeedPage() {
   await doSeed();
