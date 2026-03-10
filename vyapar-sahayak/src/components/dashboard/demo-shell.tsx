@@ -5,7 +5,6 @@ import { Sidebar } from "./sidebar";
 import { TopBar } from "./top-bar";
 import { BottomNav } from "./bottom-nav";
 import { ChatWidget } from "../chat/chat-widget";
-import { clearAllData } from "@/app/demo/actions";
 
 export function DemoShell({ children }: { children: React.ReactNode }) {
   const [chatOpen, setChatOpen] = useState(false);
@@ -25,9 +24,7 @@ export function DemoShell({ children }: { children: React.ReactNode }) {
     function handleKey(e: KeyboardEvent) {
       if (e.ctrlKey && e.shiftKey && e.key === "R") {
         e.preventDefault();
-        clearAllData().then(() => {
-          window.location.href = "/demo";
-        });
+        window.location.href = "/demo/reset";
       }
     }
     window.addEventListener("keydown", handleKey);

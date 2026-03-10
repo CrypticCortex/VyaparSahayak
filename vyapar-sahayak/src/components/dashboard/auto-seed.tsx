@@ -4,8 +4,6 @@ import { useState, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { seedAndDetect } from "@/app/demo/actions";
-import { testAction } from "@/app/demo/test-action";
 
 const STATS = [
   { label: "Products", value: "15", icon: "box" },
@@ -205,30 +203,13 @@ export function AutoSeed() {
     // Start at step 0 immediately
     setActiveStep(0);
 
-    try {
-      // Test if server actions + Prisma work on Amplify at all
-      const testResult = await testAction();
-      console.log("testAction result:", testResult);
-
-      await Promise.all([
-        seedAndDetect(),
-        // Min display time: steps * 1.2s + 2s buffer for poster gallery
-        new Promise((r) => setTimeout(r, STEPS.length * 1200 + 2000)),
-      ]);
-
-      clearInterval(stepTimer);
-      setActiveStep(STEPS.length - 1);
-
-      // Brief pause to show all checkmarks, then refresh
-      await new Promise((r) => setTimeout(r, 1000));
-      router.refresh();
-    } catch (err) {
-      clearInterval(stepTimer);
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(`Setup failed: ${msg.slice(0, 200)}`);
-      setPhase("overview");
-      setActiveStep(-1);
-    }
+    // Min display time for animation, then navigate to SSR seed page
+    await new Promise((r) => setTimeout(r, STEPS.length * 1200 + 2000));
+    clearInterval(stepTimer);
+    setActiveStep(STEPS.length - 1);
+    await new Promise((r) => setTimeout(r, 800));
+    // Navigate to the SSR seed page which runs Prisma and redirects back
+    window.location.href = "/demo/seed";
   }, [router]);
 
   // Show poster gallery when we're on or past the poster step (index 4)
