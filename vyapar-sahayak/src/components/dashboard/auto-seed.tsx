@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { seedAndDetect } from "@/app/demo/actions";
+import { testAction } from "@/app/demo/test-action";
 
 const STATS = [
   { label: "Products", value: "15", icon: "box" },
@@ -205,6 +206,10 @@ export function AutoSeed() {
     setActiveStep(0);
 
     try {
+      // Test if server actions + Prisma work on Amplify at all
+      const testResult = await testAction();
+      console.log("testAction result:", testResult);
+
       await Promise.all([
         seedAndDetect(),
         // Min display time: steps * 1.2s + 2s buffer for poster gallery
