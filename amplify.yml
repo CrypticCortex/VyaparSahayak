@@ -9,8 +9,7 @@ applications:
             - npx prisma generate
         build:
           commands:
-            - rm -rf .next/cache
-            - TURBOPACK=0 npm run build
+            - npm run build
       artifacts:
         baseDirectory: .next
         files:
@@ -18,3 +17,4 @@ applications:
       cache:
         paths:
           - node_modules/**/*
+          - .next/cache/**/*
