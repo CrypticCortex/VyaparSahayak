@@ -1,9 +1,10 @@
 // src/app/api/seed/route.ts
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db";
 import { DISTRIBUTOR, ZONES, PRODUCTS, RETAILER_NAMES } from "@/lib/seed/data";
 import { generateSalesHistory, generateInventory } from "@/lib/seed/generate";
@@ -437,7 +438,11 @@ export async function POST() {
       agentSuggestions: suggestions.length,
     };
 
-    // Bust Next.js cache so pages pick up new IDs
+    // Invalidate data cache so /demo picks up fresh data
+    revalidateTag("dashboard", "max");
+    revalidateTag("alerts", "max");
+    revalidateTag("network", "max");
+    revalidateTag("campaigns", "max");
     revalidatePath("/demo", "layout");
 
     return NextResponse.json({ success: true, stats });

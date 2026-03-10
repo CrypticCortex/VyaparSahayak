@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db";
 
 export const maxDuration = 60;
@@ -22,11 +21,6 @@ async function doReset() {
   await prisma.zone.deleteMany();
   await prisma.product.deleteMany();
   await prisma.distributor.deleteMany();
-  revalidateTag("dashboard", "max");
-  revalidateTag("alerts", "max");
-  revalidateTag("network", "max");
-  revalidateTag("campaigns", "max");
-
   return { done: true };
 }
 
