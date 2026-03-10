@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { revalidatePath, unstable_cache } from "next/cache";
+import { unstable_cache } from "next/cache";
 
 export const maxDuration = 60;
 
@@ -30,6 +30,5 @@ const doReset = unstable_cache(
 
 export default async function ResetPage() {
   await doReset();
-  revalidatePath("/demo", "layout");
   redirect("/demo");
 }
