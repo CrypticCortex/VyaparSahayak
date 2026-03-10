@@ -1,22 +1,11 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const standaloneConfig = process.env.__NEXT_PRIVATE_STANDALONE_CONFIG;
-  let parsedConfig: Record<string, unknown> = {};
-  if (standaloneConfig) {
-    try {
-      parsedConfig = JSON.parse(standaloneConfig);
-    } catch {
-      parsedConfig = { raw: standaloneConfig.substring(0, 200) };
-    }
+  try {
+    const { prisma } = await import("@/lib/db");
+    const count = await prisma.distributor.count();
+    return NextResponse.json({ pong: true, distributors: count, time: new Date().toISOString() });
+  } catch (error) {
+    return NextResponse.json({ pong: true, error: String(error), time: new Date().toISOString() }, { status: 500 });
   }
-
-  return NextResponse.json({
-    pong: true,
-    dbUrlSet: !!process.env.DATABASE_URL,
-    standaloneConfigKeys: Object.keys(parsedConfig),
-    hasEnv: 'env' in parsedConfig,
-    envKeys: parsedConfig.env ? Object.keys(parsedConfig.env as Record<string, unknown>) : [],
-    time: new Date().toISOString(),
-  });
 }
