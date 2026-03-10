@@ -1,8 +1,6 @@
 import { prisma } from "@/lib/db";
 import { unstable_cache } from "next/cache";
 
-export const revalidate = 0;
-
 // Wrap even writes in unstable_cache -- Amplify SSR only works with this wrapper
 const doWrite = unstable_cache(
   async () => {
