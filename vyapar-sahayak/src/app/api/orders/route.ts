@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // GET /api/orders -- orders grouped by zone
 
 import { NextResponse } from "next/server";

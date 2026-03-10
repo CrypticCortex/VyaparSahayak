@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // src/app/api/campaign/send/route.ts
 
 import { NextResponse } from "next/server";

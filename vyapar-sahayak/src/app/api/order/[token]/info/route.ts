@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // GET /api/order/[token]/info -- returns campaign + product data for an order link
 
 import { NextResponse } from "next/server";
