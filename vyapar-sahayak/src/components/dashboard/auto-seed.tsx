@@ -217,9 +217,10 @@ export function AutoSeed() {
       // Brief pause to show all checkmarks, then refresh
       await new Promise((r) => setTimeout(r, 1000));
       router.refresh();
-    } catch {
+    } catch (err) {
       clearInterval(stepTimer);
-      setError("Setup failed. Please try again.");
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(`Setup failed: ${msg.slice(0, 200)}`);
       setPhase("overview");
       setActiveStep(-1);
     }
