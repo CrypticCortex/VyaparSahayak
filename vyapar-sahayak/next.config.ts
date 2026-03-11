@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
     BEDROCK_REGION: process.env.BEDROCK_REGION || "us-east-1",
     BEDROCK_TEXT_MODEL: process.env.BEDROCK_TEXT_MODEL || "amazon.nova-lite-v1:0",
     CHAT_USE_BEDROCK: process.env.CHAT_USE_BEDROCK || "true",
+    BEDROCK_ACCESS_KEY_ID: process.env.BEDROCK_ACCESS_KEY_ID || "",
+    BEDROCK_SECRET_ACCESS_KEY: process.env.BEDROCK_SECRET_ACCESS_KEY || "",
+    GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY || "",
   },
 };
 
