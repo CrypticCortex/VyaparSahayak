@@ -7,6 +7,7 @@ applications:
           commands:
             - npm install
             - npx prisma generate
+            - DATABASE_URL="libsql://vyapar-sahayak-crypticcortex.aws-ap-south-1.turso.io" TURSO_AUTH_TOKEN="eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NzI5MDMyNDEsImlkIjoiMDE5Y2M5NDQtN2YwMS03MGQzLTkxODItMDQ1ZmI0YTNkYzQ0IiwicmlkIjoiYjRiYTA3NDMtZjQ2OC00ZWVkLWE4MWEtZTY2NTA5MjFlMzMyIn0.smYoygH8Bd44zxguTE7T9uwGlzc3pWU2YTEEofg_JIlOycXeTzC9wt-5ETxQzbWfvJyvCN2lZqZHaF-3yNQGDQ" npx prisma db push --accept-data-loss 2>/dev/null || true
         build:
           commands:
             - npm run build
