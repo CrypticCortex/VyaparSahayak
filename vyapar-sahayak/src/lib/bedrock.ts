@@ -5,9 +5,19 @@ import {
   InvokeModelCommand,
 } from "@aws-sdk/client-bedrock-runtime";
 
-const client = new BedrockRuntimeClient({
+const clientConfig: ConstructorParameters<typeof BedrockRuntimeClient>[0] = {
   region: process.env.BEDROCK_REGION || process.env.AWS_REGION || "us-east-1",
-});
+};
+
+// Amplify blocks AWS_* env var names, so credentials are stored under BEDROCK_* names
+if (process.env.BEDROCK_ACCESS_KEY_ID && process.env.BEDROCK_SECRET_ACCESS_KEY) {
+  clientConfig.credentials = {
+    accessKeyId: process.env.BEDROCK_ACCESS_KEY_ID,
+    secretAccessKey: process.env.BEDROCK_SECRET_ACCESS_KEY,
+  };
+}
+
+const client = new BedrockRuntimeClient(clientConfig);
 
 const isDemoMode = process.env.CHAT_USE_BEDROCK !== "true";
 
