@@ -179,7 +179,12 @@ function PosterPreview({ poster, index }: { poster: typeof POSTER_PREVIEWS[numbe
   );
 }
 
-export function AutoSeed() {
+interface AutoSeedProps {
+  /** When provided, skips the actual seed API call and calls this instead after animation */
+  onDone?: () => void;
+}
+
+export function AutoSeed({ onDone }: AutoSeedProps = {}) {
   const [phase, setPhase] = useState<"overview" | "processing">("overview");
   const [activeStep, setActiveStep] = useState(-1);
   const [error, setError] = useState<string | null>(null);
@@ -203,19 +208,26 @@ export function AutoSeed() {
     // Start at step 0 immediately
     setActiveStep(0);
 
-    // Min display time for animation, then hit the API seed endpoint
+    // Min display time for animation
     await new Promise((r) => setTimeout(r, STEPS.length * 1200 + 2000));
     clearInterval(stepTimer);
     setActiveStep(STEPS.length - 1);
     await new Promise((r) => setTimeout(r, 800));
-    // POST to the API seed route which runs Prisma, invalidates cache, then navigate to dashboard
-    try {
-      await fetch("/api/seed", { method: "POST" });
-    } catch {
-      // best-effort -- even if fetch fails, navigate to /demo
+
+    if (onDone) {
+      // Data already exists -- just reveal the dashboard
+      onDone();
+    } else {
+      // Fresh DB -- POST to seed API, then navigate
+      try {
+        await fetch("/api/seed", { method: "POST" });
+      } catch {
+        // best-effort -- even if fetch fails, navigate to /demo
+      }
+      localStorage.setItem("vyapar-intro-seen", "true");
+      window.location.href = "/demo";
     }
-    window.location.href = "/demo";
-  }, [router]);
+  }, [onDone, router]);
 
   // Show poster gallery when we're on or past the poster step (index 4)
   const showPosters = activeStep >= 4;

@@ -1,12 +1,11 @@
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 // src/app/api/recommend/[id]/route.ts
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateText, generateImage, generateImageGemini } from "@/lib/bedrock";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { invalidateAfterRecommend } from "@/lib/cache";
 import { generateOrderToken } from "@/lib/order-token";
 
@@ -150,31 +149,25 @@ Respond with ONLY JSON:
 
     const geminiPrompt = `Professional Indian FMCG kirana store clearance sale promotional poster. Vibrant saffron orange and deep blue color scheme. A well-organized kirana shop shelf displaying colorful packaged ${product.category.toLowerCase()} products. A large bold circular badge showing ${discountPct}% OFF in bright yellow. Clean modern flat design layout optimized for WhatsApp sharing. Green call-to-action banner at the bottom. Festive South Indian retail aesthetic with kolam border decorations. Simple composition, bright and inviting, no human faces.`;
 
-    const postersDir = path.join(process.cwd(), "public", "posters");
-    await mkdir(postersDir, { recursive: true });
-
     // Run both generators in parallel
     const [awsResult, geminiResult] = await Promise.allSettled([
       generateImage(imagePrompt, LANG.negativePrompt),
       generateImageGemini(geminiPrompt),
     ]);
 
+    // Store as base64 data URLs (no filesystem dependency on Lambda)
     let posterUrl = "";
     if (awsResult.status === "fulfilled") {
       const buf = awsResult.value;
-      const ext = buf.toString("utf8", 0, 4) === "<svg" ? "svg" : "png";
-      const filename = `poster-aws-${rec.id}.${ext}`;
-      await writeFile(path.join(postersDir, filename), buf);
-      posterUrl = `/posters/${filename}`;
+      const mime = buf.toString("utf8", 0, 4) === "<svg" ? "image/svg+xml" : "image/png";
+      posterUrl = `data:${mime};base64,${buf.toString("base64")}`;
     } else {
       console.error("AWS image generation failed:", awsResult.reason);
     }
 
     let posterUrlAlt = "";
     if (geminiResult.status === "fulfilled") {
-      const filename = `poster-gemini-${rec.id}.png`;
-      await writeFile(path.join(postersDir, filename), geminiResult.value);
-      posterUrlAlt = `/posters/${filename}`;
+      posterUrlAlt = `data:image/png;base64,${geminiResult.value.toString("base64")}`;
     } else {
       console.error("Gemini image generation failed:", geminiResult.reason);
     }
