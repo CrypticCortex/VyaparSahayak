@@ -78,11 +78,11 @@ Respond with ONLY valid JSON:
     const rec = await prisma.recommendation.create({
       data: {
         alertId: id,
-        type: aiRec.type || mlRec.type,
-        targetZone: mlRec.targetZone,
-        bundleWith: mlRec.bundleWithName,
-        discountPct: mlRec.discountPct,
-        estimatedRecovery: mlRec.estimatedRecovery,
+        type: aiRec.type || mlRec.type || "discount",
+        targetZone: mlRec.targetZone || null,
+        bundleWith: mlRec.bundleWithName || null,
+        discountPct: mlRec.discountPct || null,
+        estimatedRecovery: mlRec.estimatedRecovery || alert.stockValue * 0.65,
         rationale: JSON.stringify(aiRec),
         status: "approved",
       },
