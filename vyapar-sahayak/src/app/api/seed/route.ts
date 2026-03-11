@@ -23,7 +23,8 @@ function generateOrderToken(index: number): string {
 
 export async function POST() {
   try {
-    // Clear existing data (correct FK order -- children first)
+    // Disable FK enforcement for safe bulk clear (Turso has FKs ON by default)
+    await prisma.$executeRawUnsafe("PRAGMA foreign_keys = OFF");
     await prisma.dispatchBatchOrder.deleteMany();
     await prisma.orderItem.deleteMany();
     await prisma.order.deleteMany();
@@ -40,6 +41,7 @@ export async function POST() {
     await prisma.zone.deleteMany();
     await prisma.product.deleteMany();
     await prisma.distributor.deleteMany();
+    await prisma.$executeRawUnsafe("PRAGMA foreign_keys = ON");
 
     // Create distributor
     const dist = await prisma.distributor.create({ data: DISTRIBUTOR });
@@ -458,6 +460,7 @@ export async function POST() {
 // DELETE: clear all data without re-seeding (for demo reset)
 export async function DELETE() {
   try {
+    await prisma.$executeRawUnsafe("PRAGMA foreign_keys = OFF");
     await prisma.dispatchBatchOrder.deleteMany();
     await prisma.orderItem.deleteMany();
     await prisma.order.deleteMany();
@@ -474,6 +477,7 @@ export async function DELETE() {
     await prisma.zone.deleteMany();
     await prisma.product.deleteMany();
     await prisma.distributor.deleteMany();
+    await prisma.$executeRawUnsafe("PRAGMA foreign_keys = ON");
 
     // Bust both unstable_cache tags and page cache
     const { revalidateTag } = await import("next/cache");
