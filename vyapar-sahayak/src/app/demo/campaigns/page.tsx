@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getCachedDistributor, getCachedCampaigns } from "@/lib/cache";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";

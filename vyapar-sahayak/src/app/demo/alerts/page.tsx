@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getCachedDistributor, getCachedAlerts, getCachedProducts } from "@/lib/cache";
 import { AlertsList } from "./alerts-list";
 
