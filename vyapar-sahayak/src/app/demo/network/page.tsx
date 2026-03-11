@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getCachedDistributor, getCachedNetworkData } from "@/lib/cache";
 
 export default async function NetworkPage() {

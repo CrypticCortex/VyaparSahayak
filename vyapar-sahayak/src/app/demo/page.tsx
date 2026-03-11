@@ -1,4 +1,5 @@
 export const maxDuration = 120;
+export const dynamic = "force-dynamic";
 
 import { getCachedDistributor, getCachedDashboardData, getCachedProducts } from "@/lib/cache";
 import { prisma } from "@/lib/db";
