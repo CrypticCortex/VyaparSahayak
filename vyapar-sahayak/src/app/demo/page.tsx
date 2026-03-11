@@ -8,6 +8,7 @@ import { InventoryTable } from "@/components/dashboard/inventory-table";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 import { AiInsight } from "@/components/dashboard/ai-insight";
 import { AutoSeed } from "@/components/dashboard/auto-seed";
+import { ClientIntroOverlay } from "@/components/dashboard/client-intro-overlay";
 import { SuggestionList } from "@/components/dashboard/suggestion-list";
 import { generateDashboardInsight } from "@/lib/ml/insights";
 
@@ -72,6 +73,8 @@ export default async function DemoPage() {
   }));
 
   return (
+    <>
+    <ClientIntroOverlay />
     <div className="p-4 lg:p-6 space-y-6">
       {/* Metrics row */}
       <MetricsRow
@@ -103,5 +106,6 @@ export default async function DemoPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

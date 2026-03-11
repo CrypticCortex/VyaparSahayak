@@ -15,9 +15,11 @@ export function ApproveRejectButtons({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [rejected, setRejected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleApprove() {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/recommend/${alertId}`, {
         method: "POST",
@@ -25,20 +27,14 @@ export function ApproveRejectButtons({
         body: JSON.stringify({ action: "approve", recommendationId }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.campaignId) {
-          router.push(`/demo/campaigns/${data.campaignId}`);
-        } else {
-          router.push("/demo/alerts");
-        }
+      const data = await res.json();
+      if (res.ok && data.campaignId) {
+        router.push(`/demo/campaigns/${data.campaignId}`);
       } else {
-        // If API not yet implemented, navigate to alerts with feedback
-        router.push("/demo/alerts");
+        setError(data.error || "Something went wrong. Please try again.");
       }
     } catch {
-      // Fallback navigation
-      router.push("/demo/alerts");
+      setError("Network error. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -60,13 +56,29 @@ export function ApproveRejectButtons({
   }
 
   return (
+    <div className="flex flex-col gap-2">
+      {error && (
+        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+          <p className="text-xs text-red-600">{error}</p>
+        </div>
+      )}
+      {loading && (
+        <div className="rounded-xl bg-orange-50 border border-orange-200 px-4 py-3">
+          <p className="text-xs text-orange-600 font-medium">Generating AI recommendation & campaign poster... this may take up to 60 seconds.</p>
+        </div>
+      )}
     <div className="flex gap-3">
       <button
         onClick={handleApprove}
         disabled={loading}
         className="flex-1 py-3 rounded-xl bg-[#10B981] text-white text-sm font-semibold hover:bg-[#10B981]/80 transition-colors disabled:opacity-50"
       >
-        {loading ? "Processing..." : "Approve & Launch"}
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            Generating...
+          </span>
+        ) : "Approve & Launch"}
       </button>
       <button
         onClick={handleReject}
@@ -75,6 +87,7 @@ export function ApproveRejectButtons({
       >
         Reject
       </button>
+    </div>
     </div>
   );
 }
