@@ -9,7 +9,7 @@ const client = new BedrockRuntimeClient({
   region: process.env.BEDROCK_REGION || process.env.AWS_REGION || "us-east-1",
 });
 
-const isDemoMode = !process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID === "your-key";
+const isDemoMode = process.env.CHAT_USE_BEDROCK !== "true";
 
 // Text generation via Bedrock (supports Claude and Nova models)
 export async function generateText(prompt: string): Promise<string> {
