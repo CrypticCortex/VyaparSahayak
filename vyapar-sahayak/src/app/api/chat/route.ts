@@ -10,6 +10,7 @@ import { allTools } from "@/lib/strands/tools";
 import { isSuggestionResult } from "@/lib/strands/autonomy";
 import { executeTool } from "@/lib/agent-tools";
 import { prisma } from "@/lib/db";
+import { auth, isToolAllowed, type UserRole } from "@/auth";
 
 interface CampaignCard {
   id: string;
@@ -39,6 +40,14 @@ async function getCampaignCards(campaignIds: string[]): Promise<CampaignCard[]> 
 // more predictable, and have WhatsApp/poster integration built in.
 // Set CHAT_USE_BEDROCK=true to use the LLM-powered agentic path instead.
 const isDemoMode = process.env.CHAT_USE_BEDROCK !== "true";
+
+// Unwrap tool results that may be wrapped in { items: [...] } or be a plain array
+function unwrapItems(result: unknown): any[] {
+  const r = result as any;
+  if (r?.items && Array.isArray(r.items)) return r.items;
+  if (Array.isArray(r)) return r;
+  return [];
+}
 
 const SYSTEM_PROMPT = `You are VyaparSahayak AI, a smart assistant for Indian FMCG distributors in Tamil Nadu. You help manage dead stock, create WhatsApp campaigns, handle orders, manage dispatch batches, and monitor retailer activity.
 
@@ -101,8 +110,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No messages provided" }, { status: 400 });
     }
 
+    // Get authenticated user role for RBAC
+    const session = await auth();
+    const role = ((session?.user as any)?.role || "distributor") as UserRole;
+
     if (isDemoMode) {
-      return handleDemoMode(messages);
+      return handleDemoMode(messages, role);
     }
 
     // Create Strands Agent with Bedrock model and all tools
@@ -161,10 +174,9 @@ export async function POST(req: Request) {
       ...(suggestions.length > 0 && { suggestions }),
     });
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : String(error);
-    console.error("Chat error:", errMsg, error);
+    console.error("Chat error:", error);
     return NextResponse.json(
-      { error: `Something went wrong: ${errMsg}` },
+      { error: "Something went wrong. Please try again." },
       { status: 500 }
     );
   }
@@ -174,7 +186,8 @@ export async function POST(req: Request) {
 
 
 // Demo mode: use tool execution directly without Bedrock
-async function handleDemoMode(messages: ChatMessage[]) {
+async function handleDemoMode(messages: ChatMessage[], role: UserRole = "distributor") {
+  void role; // will be used for RBAC gating in future
   const lastMessage = messages[messages.length - 1].content.toLowerCase();
 
   try {
@@ -204,8 +217,8 @@ async function handleDemoMode(messages: ChatMessage[]) {
     // WhatsApp groups
     if (lastMessage.includes("group") || lastMessage.includes("who will receive") || lastMessage.includes("whatsapp group")) {
       const result = await executeTool("get_whatsapp_groups", {});
-      const groups = result as any[];
-      if (!Array.isArray(groups) || groups.length === 0) {
+      const groups = unwrapItems(result);
+      if (groups.length === 0) {
         return NextResponse.json({ reply: "No WhatsApp groups configured. Run seed to set them up." });
       }
       const lines = groups.map(
@@ -223,11 +236,12 @@ async function handleDemoMode(messages: ChatMessage[]) {
       lastMessage.includes("approve") ||
       lastMessage.includes("dispatch")
     ) {
-      const campaigns = (await executeTool("get_campaigns", {})) as any[];
-      if (!Array.isArray(campaigns) || campaigns.length === 0) {
+      const rawCampaigns = await executeTool("get_campaigns", {});
+      const campaigns = unwrapItems(rawCampaigns);
+      if (campaigns.length === 0) {
         return NextResponse.json({ reply: "No campaigns to send. Let me scan and create some first." });
       }
-      const drafts = campaigns.filter((c) => c.status === "draft");
+      const drafts = campaigns.filter((c: any) => c.status === "draft");
       if (drafts.length === 0) {
         return NextResponse.json({ reply: "All campaigns have already been sent!" });
       }
@@ -267,8 +281,8 @@ async function handleDemoMode(messages: ChatMessage[]) {
 
     if (lastMessage.includes("alert") || lastMessage.includes("risk") || lastMessage.includes("dead stock")) {
       const result = await executeTool("get_alerts", {});
-      const alerts = result as any[];
-      if (!Array.isArray(alerts) || alerts.length === 0) {
+      const alerts = unwrapItems(result);
+      if (alerts.length === 0) {
         return NextResponse.json({ reply: "No alerts found. Try scanning your inventory first." });
       }
       const top5 = alerts.slice(0, 5);
@@ -281,8 +295,9 @@ async function handleDemoMode(messages: ChatMessage[]) {
     }
 
     if (lastMessage.includes("campaign") && (lastMessage.includes("send") || lastMessage.includes("dispatch"))) {
-      const campaigns = (await executeTool("get_campaigns", {})) as any[];
-      if (!Array.isArray(campaigns) || campaigns.length === 0) {
+      const rawCampaigns2 = await executeTool("get_campaigns", {});
+      const campaigns = unwrapItems(rawCampaigns2);
+      if (campaigns.length === 0) {
         return NextResponse.json({ reply: "No campaigns found. Generate a recommendation first to create one." });
       }
       const draft = campaigns.find((c) => c.status === "draft");
@@ -331,9 +346,9 @@ async function handleDemoMode(messages: ChatMessage[]) {
     }
 
     if (lastMessage.includes("campaign")) {
-      const result = await executeTool("get_campaigns", {});
-      const campaigns = result as any[];
-      if (!Array.isArray(campaigns) || campaigns.length === 0) {
+      const rawCampaigns3 = await executeTool("get_campaigns", {});
+      const campaigns = unwrapItems(rawCampaigns3);
+      if (campaigns.length === 0) {
         return NextResponse.json({ reply: "No campaigns yet. Scan inventory and generate recommendations to create campaigns." });
       }
       const campaignIds = campaigns.slice(0, 5).map((c: any) => c.id);
@@ -348,8 +363,9 @@ async function handleDemoMode(messages: ChatMessage[]) {
     }
 
     if (lastMessage.includes("recommend") || lastMessage.includes("action") || lastMessage.includes("fix")) {
-      const alerts = (await executeTool("get_alerts", {})) as any[];
-      if (!Array.isArray(alerts) || alerts.length === 0) {
+      const rawAlerts = await executeTool("get_alerts", {});
+      const alerts = unwrapItems(rawAlerts);
+      if (alerts.length === 0) {
         return NextResponse.json({ reply: "No alerts to act on. Scan your inventory first." });
       }
       const first = alerts[0];

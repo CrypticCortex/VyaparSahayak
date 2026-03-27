@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Sidebar } from "./sidebar";
 import { TopBar } from "./top-bar";
 import { BottomNav } from "./bottom-nav";
 import { ChatWidget } from "../chat/chat-widget";
 
 export function DemoShell({ children }: { children: React.ReactNode }) {
+  const { data: session } = useSession();
   const [chatOpen, setChatOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -46,7 +48,10 @@ export function DemoShell({ children }: { children: React.ReactNode }) {
         className="min-h-screen transition-[padding-left] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
         style={{ paddingLeft: isDesktop ? sidebarWidth : 0 }}
       >
-        <TopBar />
+        <TopBar
+          ownerName={session?.user?.name || "Kalyan"}
+          role={(session?.user as any)?.role}
+        />
 
         <main className="pb-20 lg:pb-6">
           {children}

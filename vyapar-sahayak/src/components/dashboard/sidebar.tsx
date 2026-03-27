@@ -36,6 +36,11 @@ const navItems = [
     href: "/demo/orders",
     icon: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2 M8 2h8v4H8V2z M9 10h6 M9 14h6 M9 18h4",
   },
+  {
+    label: "Import Data",
+    href: "/demo/import",
+    icon: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M17 8l-5-5-5 5 M12 3v12",
+  },
 ];
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {

@@ -182,17 +182,16 @@ export const generateRecommendationTool = tool({
     alert_id: z.string().describe("The alert ID to generate a recommendation for"),
   }),
   callback: async (input) => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/recommend/${input.alert_id}`, { method: "POST" });
-    const data = await res.json();
-
-    if (!res.ok) return err(data.error || "Failed to generate recommendation");
+    // Direct function call instead of HTTP fetch (avoids SSRF risk)
+    const { generateRecommendationForAlert } = await import("@/lib/recommend");
+    const data = await generateRecommendationForAlert(input.alert_id);
+    if ("error" in data) return err(data.error);
 
     return {
       success: true,
       campaignId: data.campaignId,
-      recommendationType: data.ai?.type || data.recommendation?.type || null,
-      headline: data.ai?.headline || null,
+      recommendationType: String(data.ai?.type || data.recommendation?.type || ""),
+      headline: String(data.ai?.headline || ""),
       message: "Recommendation and campaign created with WhatsApp message and poster.",
     };
   },
@@ -344,7 +343,6 @@ export const getWhatsAppGroups = tool({
         memberCount: g.memberCount,
         zoneName: g.zoneId ? zoneMap[g.zoneId]?.name || null : null,
         zoneCode: g.zoneId ? zoneMap[g.zoneId]?.code || null : null,
-        inviteLink: g.inviteLink,
       })),
     };
   },
@@ -795,6 +793,25 @@ export const sendCampaignReminder = tool({
 });
 
 
+export const queryKnowledgeBase = tool({
+  name: "query_knowledge_base",
+  description: "Search the RAG knowledge base for product info, FMCG best practices, or campaign history. Use when user asks questions not covered by other tools.",
+  inputSchema: z.object({
+    query: z.string().describe("Natural language query to search the knowledge base"),
+    top_k: z.number().optional().describe("Number of results to return (default 5)"),
+  }),
+  callback: async (input) => {
+    try {
+      const { searchKnowledgeBase } = await import("@/lib/rag/search");
+      const results = await searchKnowledgeBase(input.query, input.top_k ?? 5);
+      return { items: results };
+    } catch {
+      return err("Knowledge base not available. Run RAG ingestion first.");
+    }
+  },
+});
+
+
 // Export all tools as a single array
 export const allTools = [
   getDashboardSummary,
@@ -816,4 +833,5 @@ export const allTools = [
   checkRetailerActivity,
   getCampaignPerformance,
   sendCampaignReminder,
+  queryKnowledgeBase,
 ];

@@ -9,6 +9,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/demo/network": "Network",
   "/demo/orders": "Orders",
   "/demo/orders/batches": "Dispatch Batches",
+  "/demo/import": "Import Data",
 };
 
 function getPageTitle(pathname: string): string {
@@ -21,11 +22,18 @@ function getPageTitle(pathname: string): string {
   return "Dashboard";
 }
 
+const ROLE_COLORS: Record<string, string> = {
+  distributor: "bg-[#FF9933]/10 text-[#FF9933]",
+  salesman: "bg-blue-50 text-blue-600",
+  kirana: "bg-emerald-50 text-emerald-600",
+};
+
 interface TopBarProps {
   ownerName?: string;
+  role?: string;
 }
 
-export function TopBar({ ownerName = "Kalyan" }: TopBarProps) {
+export function TopBar({ ownerName = "Kalyan", role }: TopBarProps) {
   const pathname = usePathname();
   const title = getPageTitle(pathname);
 
@@ -41,6 +49,13 @@ export function TopBar({ ownerName = "Kalyan" }: TopBarProps) {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
+          {/* Role badge */}
+          {role && (
+            <span className={`hidden sm:inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full capitalize ${ROLE_COLORS[role] || "bg-gray-100 text-gray-500"}`}>
+              {role}
+            </span>
+          )}
+
           {/* Demo badge */}
           <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

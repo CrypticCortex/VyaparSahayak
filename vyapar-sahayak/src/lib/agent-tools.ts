@@ -324,12 +324,11 @@ async function getAlertDetail(alertId: string) {
 
 
 async function generateRecommendationForAlert(alertId: string) {
-  // Call the recommend API internally
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/recommend/${alertId}`, { method: "POST" });
-  const data = await res.json();
+  // Direct function call instead of HTTP fetch (avoids SSRF risk)
+  const { generateRecommendationForAlert: recommend } = await import("@/lib/recommend");
+  const data = await recommend(alertId);
 
-  if (!res.ok) return { error: data.error || "Failed to generate recommendation" };
+  if ("error" in data) return { error: data.error };
 
   return {
     success: true,
@@ -468,7 +467,6 @@ async function getWhatsAppGroups() {
     memberCount: g.memberCount,
     zoneName: g.zoneId ? zoneMap[g.zoneId]?.name || null : null,
     zoneCode: g.zoneId ? zoneMap[g.zoneId]?.code || null : null,
-    inviteLink: g.inviteLink,
   }));
 }
 

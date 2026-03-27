@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model Distributor {
@@ -28,6 +28,7 @@ model Distributor {
   whatsAppGroups WhatsAppGroup[]
   orders         Order[]
   batches        DispatchBatch[]
+  ingestionJobs  IngestionJob[]
 }
 
 model Zone {
@@ -178,6 +179,7 @@ model Campaign {
 
   recommendation Recommendation @relation(fields: [recommendationId], references: [id])
   distributor    Distributor    @relation(fields: [distributorId], references: [id])
+  orders         Order[]
 }
 
 model WhatsAppGroup {
@@ -209,6 +211,7 @@ model Order {
 
   retailer    Retailer           @relation(fields: [retailerId], references: [id])
   distributor Distributor        @relation(fields: [distributorId], references: [id])
+  campaign    Campaign?          @relation(fields: [campaignId], references: [id])
   items       OrderItem[]
   batches     DispatchBatchOrder[]
 }
@@ -263,4 +266,27 @@ model AgentSuggestion {
   actedAt       DateTime?
 
   distributor Distributor @relation(fields: [distributorId], references: [id])
+}
+
+model IngestionJob {
+  id            String   @id @default(cuid())
+  distributorId String
+  type          String
+  status        String   @default("pending")
+  itemCount     Int      @default(0)
+  errorMessage  String?
+  startedAt     DateTime @default(now())
+  finishedAt    DateTime?
+
+  distributor Distributor @relation(fields: [distributorId], references: [id])
+}
+
+model Embedding {
+  id         String                       @id @default(cuid())
+  sourceId   String
+  sourceType String
+  content    String
+  embedding  Unsupported("vector(1024)")
+  metadata   String?
+  createdAt  DateTime                     @default(now())
 }

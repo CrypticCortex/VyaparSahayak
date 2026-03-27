@@ -4,6 +4,7 @@ import {
   BedrockRuntimeClient,
   InvokeModelCommand,
 } from "@aws-sdk/client-bedrock-runtime";
+import { createTrace, createGeneration } from "@/lib/observability";
 
 const clientConfig: ConstructorParameters<typeof BedrockRuntimeClient>[0] = {
   region: process.env.BEDROCK_REGION || process.env.AWS_REGION || "us-east-1",
@@ -57,6 +58,55 @@ export async function generateText(prompt: string): Promise<string> {
   }
   return decoded.output.message.content[0].text;
 }
+
+// Text generation with explicit model selection + Langfuse tracing
+export async function generateTextWithModel(
+  prompt: string,
+  options?: { model?: string; traceName?: string }
+): Promise<string> {
+  if (isDemoMode) {
+    return generateMockText(prompt);
+  }
+
+  const modelId = options?.model || process.env.BEDROCK_TEXT_MODEL || "amazon.nova-lite-v1:0";
+  const isClaude = modelId.startsWith("anthropic.");
+  const startTime = new Date();
+  const trace = createTrace(options?.traceName || "bedrock-text", { model: modelId });
+
+  const body = isClaude
+    ? JSON.stringify({
+        anthropic_version: "bedrock-2023-05-31",
+        max_tokens: 2048,
+        messages: [{ role: "user", content: prompt }],
+      })
+    : JSON.stringify({
+        inferenceConfig: { maxTokens: 4096 },
+        messages: [{ role: "user", content: [{ text: prompt }] }],
+      });
+
+  const response = await client.send(
+    new InvokeModelCommand({
+      modelId,
+      body,
+      contentType: "application/json",
+      accept: "application/json",
+    })
+  );
+
+  const decoded = JSON.parse(new TextDecoder().decode(response.body));
+  const output = isClaude ? decoded.content[0].text : decoded.output.message.content[0].text;
+
+  createGeneration(trace, {
+    name: "text-generation",
+    model: modelId,
+    input: prompt.slice(0, 500),
+    output: output.slice(0, 500),
+    startTime,
+  });
+
+  return output;
+}
+
 
 function generateMockText(prompt: string): string {
   if (prompt.includes("WhatsApp")) {

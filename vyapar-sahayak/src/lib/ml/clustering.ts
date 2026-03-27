@@ -43,9 +43,10 @@ export function clusterRetailers(
     maxIterations: 100,
   });
 
+  // Rank centroids by avgOrderValue dimension (index 1) for more meaningful segmentation
   const centroidMagnitudes = result.centroids.map((c, i) => ({
     idx: i,
-    magnitude: c.reduce((s, v) => s + v, 0),
+    magnitude: c[1] + c[3] * 0.5, // weight avgOrderValue + totalPurchaseValue
   }));
   centroidMagnitudes.sort((a, b) => b.magnitude - a.magnitude);
 

@@ -17,10 +17,10 @@ export async function GET() {
       openAlerts,
       campaigns: campaignCount,
       distributorId: distributor?.id,
-      dbUrl: process.env.DATABASE_URL?.substring(0, 30),
       time: new Date().toISOString(),
     });
   } catch (error) {
-    return NextResponse.json({ pong: true, error: String(error), time: new Date().toISOString() }, { status: 500 });
+    console.error("Ping error:", error);
+    return NextResponse.json({ pong: true, error: "Database check failed", time: new Date().toISOString() }, { status: 500 });
   }
 }

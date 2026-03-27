@@ -102,6 +102,6 @@ Respond with ONLY JSON: {"headline": "...", "subline": "...", "offerText": "..."
     });
   } catch (error) {
     console.error("Campaign generation error:", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: "Campaign generation failed" }, { status: 500 });
   }
 }

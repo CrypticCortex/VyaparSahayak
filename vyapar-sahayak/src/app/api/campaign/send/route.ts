@@ -28,6 +28,6 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("Campaign send error:", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: "Campaign send failed" }, { status: 500 });
   }
 }
